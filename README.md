@@ -39,8 +39,8 @@ A Telegram bot that provides cryptocurrency data from CoinPaprika, with Promethe
 1. Clone the repository:
 
     ```bash
-    git clone https://github.com/coinpaprika/telegram-bot.git
-    cd telegram-bot
+    git clone https://github.com/coinpaprika/telegram-bot-v2.git
+    cd telegram-bot-v2
     ```
 
 2. Install dependencies:
