@@ -1,0 +1,23 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: config/Dockerfile
+    volumes:
+      - go-modules:/go/pkg/mod
+      - .:/app
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:${METRICS_PORT}/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    environment:
+      - TELEGRAM_BOT_TOKEN=${TELEGRAM_BOT_TOKEN}
+      - API_PRO_KEY=${API_PRO_KEY}
+      - METRICS_PORT=${METRICS_PORT}
+      - DEBUG=${DEBUG}
+    ports:
+      - "127.0.0.1:${METRICS_PORT}:${METRICS_PORT}"
+
+volumes:
+  go-modules:
