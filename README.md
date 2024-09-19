@@ -28,7 +28,7 @@ A Telegram bot that provides cryptocurrency data from CoinPaprika, with Promethe
 
 ### Prerequisites
 
-- Go (Golang) 1.16 or higher
+- Go (Golang) 1.22 or higher
 - Docker and Docker Compose
 - Telegram Bot API token (create one via [BotFather](https://t.me/botfather))
 - Prometheus (for tracking bot metrics, optional)
