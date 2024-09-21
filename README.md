@@ -13,16 +13,16 @@ A Telegram bot that provides cryptocurrency data from CoinPaprika, with Promethe
 
 ## Commands
 
-| Command       | Description                                              |
-|---------------|----------------------------------------------------------|
-| `/start`      | Display the welcome/help message                          |
-| `/help`       | Display the list of commands                              |
-| `/p <symbol>` | Check the price of a coin                                 |
-| `/s <symbol>` | Check the circulating supply of a coin                    |
-| `/v <symbol>` | Check the 24-hour volume of a coin                        |
-| `/c <symbol>` | Fetch the price chart of a coin                           |
-| `/source`     | Get the link to the source code of this bot               |
-| `$ticker`     | Mentioning a ticker (e.g. `$BTC`) also triggers a response|
+| Command       | Description                                 |
+|---------------|---------------------------------------------|
+| `/start`      | Display the welcome/help message            |
+| `/help`       | Display the list of commands                |
+| `/o <symbol>` | Check the coin overview                     |
+| `/p <symbol>` | Check the price of a coin                   |
+| `/s <symbol>` | Check the circulating supply of a coin      |
+| `/v <symbol>` | Check the 24-hour volume of a coin          |
+| `/c <symbol>` | Fetch the price chart of a coin             |
+| `/source`     | Get the link to the source code of this bot |
 
 ## Getting Started
 
@@ -116,11 +116,12 @@ You can scrape these metrics by visiting the `/metrics` endpoint at `http://loca
 
 Once the bot is running, you can interact with it via the following commands:
 
+- `/o BTC`: Check the Bitcoin overview.
+  ![image sample](./sample.png)
 - `/p BTC`: Check the price of Bitcoin.
 - `/s ETH`: Check the circulating supply of Ethereum.
 - `/v DOGE`: Check the 24-hour volume of Dogecoin.
 - `/c LTC`: Fetch the price chart of Litecoin.
-- `$BTC`: Mentioning `$BTC` will trigger a response about the Bitcoin ticker.
 
 ## License
 
