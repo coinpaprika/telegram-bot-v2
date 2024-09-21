@@ -80,37 +80,21 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 	}
 
 	usdQuote := details.Quotes["USD"]
-	btcQuote := details.Quotes["BTC"]
-	ethQuote := details.Quotes["ETH"]
 
 	caption := fmt.Sprintf(
 		"*%s Overview:*\n\n"+
-			"▫️*Price:* \n  `%s` *USD* \n  `%s` *BTC* \n  `%s` *ETH*\n\n"+
-			"▫️*Price Changes:*\n  *1h*: `%.2f%%` \n  *24h*: `%.2f%%` \n  *7d*: `%.2f%%`\n\n"+
-			"▫️*Volume \\(24h\\):*\n  `%s` *USD*\n\n"+
-			"▫️*Market Cap:*\n  `%s` *USD*\n\n"+
-			"▫️*Circulating Supply:*\n  `%s` *%s*\n\n"+
-			"▫️*Total Supply:*\n  `%s` *%s*\n\n"+
-			"[See %s\\(%s\\) on CoinPaprika 🌶](https://coinpaprika.com/coin/%s)",
+			"▫️*Price:*  `%s` *USD* \n"+
+			"▫️*Price Changes:*\n  *1h*: `%.2f%%` \\| *24h*: `%.2f%%` \\| *7d*: `%.2f%%`\n"+
+			"▫️*Vol \\(24h\\):*  `%s` *USD*\n"+
+			"▫️*MCap:*  `%s` *USD*\n"+
+			"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2)",
 		*details.Name,
 		formatPriceUS(*usdQuote.Price),
-		formatPriceUS(*btcQuote.Price),
-		formatPriceUS(*ethQuote.Price),
 		*usdQuote.PercentChange1h,
 		*usdQuote.PercentChange24h,
 		*usdQuote.PercentChange7d,
 		formatPriceUS(*usdQuote.Volume24h),
 		formatPriceUS(*usdQuote.MarketCap),
-		func() string {
-			if details.CirculatingSupply != nil {
-				return formatSupplyUS(*details.CirculatingSupply)
-			}
-			return "N/A"
-		}(),
-		*details.Symbol,
-		formatSupplyUS(*details.TotalSupply),
-		*details.Symbol,
-		*details.Name,
 		*details.Symbol,
 		*details.ID,
 	)
@@ -150,23 +134,31 @@ func renderChart(tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 		interval = "default"
 	}
 
+	// Extract prices and create price value slices for chart rendering
+	priceValues := [][]float64{{}}
+	for _, price := range prices {
+		priceValues[0] = append(priceValues[0], *price)
+	}
+
 	// Create labels for the X-axis based on the interval
 	xLabels := []string{}
 	for _, t := range times {
 		switch interval {
 		case "1d":
+			// For 1 day interval, show only the date
 			xLabels = append(xLabels, (*t).Format("02-Jan"))
-		case "1h":
-			xLabels = append(xLabels, (*t).Format("15:04"))
+		case "1h", "other":
+			// For intervals of 1 hour or less, show both date and time
+			xLabels = append(xLabels, (*t).Format("02-Jan 15:04"))
 		default:
+			// Fallback for other intervals, use a more verbose date and time format
 			xLabels = append(xLabels, (*t).Format(time.RFC822))
 		}
 	}
 
-	// Extract prices and create price value slices for chart rendering
-	priceValues := [][]float64{{}}
-	for _, price := range prices {
-		priceValues[0] = append(priceValues[0], *price)
+	// Validate that the number of xLabels and price values match
+	if len(xLabels) != len(priceValues[0]) {
+		return nil, errors.New("mismatch between number of labels and data points")
 	}
 
 	// Calculate the min and max prices and add a small padding for better visualization
@@ -178,9 +170,10 @@ func renderChart(tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 	// Set the price format dynamically based on the price range
 	priceFormat := getPriceFormat(minPrice, maxPrice)
 
+	// Create the line chart with the labels and price values
 	p, err := charts.LineRender(
 		priceValues,
-		charts.TitleTextOptionFunc("Price over Time"),
+		charts.TitleTextOptionFunc("Price over Time - data by CoinPaprika"),
 		charts.XAxisDataOptionFunc(xLabels),
 		charts.ThemeOptionFunc("coinpaprika"),
 		charts.WidthOptionFunc(1200),

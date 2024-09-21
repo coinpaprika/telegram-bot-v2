@@ -6,7 +6,6 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
-	"regexp"
 )
 
 // NewBot creates new telegram bot
@@ -44,53 +43,21 @@ func (b *Bot) SendMessage(m Message) error {
 }
 
 func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
-	text := `Please use one of the commands:
+	text := fmt.Sprintf("Please use one of the commands:\n\n" +
+		"/start or /help \tshow this message\n" +
+		"/o <symbol> \t\tcheck the coin overview\n" +
+		"/p <symbol> \t\tcheck the coin price\n" +
+		"/s <symbol> \t\tcheck the circulating supply\n" +
+		"/v <symbol> \t\tcheck the 24h volume\n" +
+		"/c <symbol> \t\tget the price chart\n\n" +
+		"/source \t\tshow source code of this bot\n")
 
-			/start or /help 	show this message
-			/p <symbol> 		check the coin price
-			/s <symbol> 		check the circulating supply
-			/v <symbol> 		check the 24h volume
-			/c <symbol> 		get the price chart
-
-			/source 			show source code of this bot
-			`
 	log.Debugf("received command: %s", u.Message.Command())
-
-	tickers := extractTickers(u.Message.Text)
-	if len(tickers) > 0 {
-		ticker := tickers[0]
-		text = fmt.Sprintf("You mentioned the ticker: %s", ticker)
-
-		var err error
-		chartData, caption, err := commands.CommandChartWithTicker(ticker)
-		if err != nil {
-			text = "invalid coin name|ticker|symbol, please try again"
-			log.Error(err)
-		} else {
-			photo := tgbotapi.NewPhoto(u.Message.Chat.ID, tgbotapi.FileBytes{
-				Name:  "chart.png",
-				Bytes: chartData,
-			})
-			photo.Caption = caption
-			photo.ParseMode = "MarkdownV2"
-			photo.ReplyToMessageID = u.Message.MessageID
-			_, err = b.Bot.Send(photo)
-			if err != nil {
-				log.Error("error sending chart:", err)
-			}
-
-			if err != nil {
-				log.Error("error deleting chart file:", err)
-			}
-
-			return ""
-		}
-	}
 
 	var err error = nil
 	switch u.Message.Command() {
 	case "source":
-		text = "https://github.com/coinpaprika/telegram-bot"
+		text = "https://github.com/coinpaprika/telegram-bot-v2"
 	case "p":
 		if text, err = commands.CommandPrice(u.Message.CommandArguments()); err != nil {
 			text = "invalid coin name|ticker|symbol, please try again"
@@ -130,20 +97,31 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 
 			return ""
 		}
+	case "o":
+		chartData, caption, err := commands.CommandChartWithTicker(u.Message.CommandArguments())
+		if err != nil {
+			text = "invalid coin name|ticker|symbol, please try again"
+			log.Error(err)
+		} else {
+			photo := tgbotapi.NewPhoto(u.Message.Chat.ID, tgbotapi.FileBytes{
+				Name:  "chart.png",
+				Bytes: chartData,
+			})
+			photo.Caption = caption
+			photo.ParseMode = "MarkdownV2"
+			photo.ReplyToMessageID = u.Message.MessageID
+			_, err = b.Bot.Send(photo)
+			if err != nil {
+				log.Error("error sending chart:", err)
+			}
+
+			if err != nil {
+				log.Error("error deleting chart file:", err)
+			}
+
+			return ""
+		}
 	}
 
 	return text
-}
-
-func extractTickers(message string) []string {
-	re := regexp.MustCompile(`\$(\w+)`)
-	matches := re.FindAllStringSubmatch(message, -1)
-
-	var tickers []string
-	for _, match := range matches {
-		if len(match) > 1 {
-			tickers = append(tickers, match[1])
-		}
-	}
-	return tickers
 }
