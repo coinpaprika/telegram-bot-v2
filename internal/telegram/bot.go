@@ -60,66 +60,75 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 		text = "https://github.com/coinpaprika/telegram-bot-v2"
 	case "p":
 		if text, err = commands.CommandPrice(u.Message.CommandArguments()); err != nil {
-			text = "invalid coin name|ticker|symbol, please try again"
+			text = "Looks like we don't have the coin you are looking for\\. Please try another coin symbol"
 			log.Error(err)
 		}
 	case "s":
 		if text, err = commands.CommandSupply(u.Message.CommandArguments()); err != nil {
-			text = "invalid coin name|ticker|symbol, please try again"
+			text = "Looks like we don't have the coin you are looking for\\. Please try another coin symbol"
 			log.Error(err)
 		}
 	case "v":
 		if text, err = commands.CommandVolume(u.Message.CommandArguments()); err != nil {
-			text = "invalid coin name|ticker|symbol, please try again"
+			text = "Looks like we don't have the coin you are looking for\\. Please try another coin symbol"
 			log.Error(err)
 		}
 	case "c":
 		chartData, caption, err := commands.CommandChart(u.Message.CommandArguments())
 		if err != nil {
-			text = "invalid coin name|ticker|symbol, please try again"
+			text = "Looks like we don't have the coin you are looking for\\. Please try another coin symbol"
 			log.Error(err)
 		} else {
-			photo := tgbotapi.NewPhoto(u.Message.Chat.ID, tgbotapi.FileBytes{
-				Name:  "chart.png",
-				Bytes: chartData,
-			})
-			photo.Caption = caption
-			photo.ParseMode = "MarkdownV2"
-			photo.ReplyToMessageID = u.Message.MessageID
-			_, err = b.Bot.Send(photo)
-			if err != nil {
-				log.Error("error sending chart:", err)
-			}
+			if chartData != nil {
+				photo := tgbotapi.NewPhoto(u.Message.Chat.ID, tgbotapi.FileBytes{
+					Name:  "chart.png",
+					Bytes: chartData,
+				})
+				photo.Caption = caption
+				photo.ParseMode = "MarkdownV2"
+				photo.ReplyToMessageID = u.Message.MessageID
+				_, err = b.Bot.Send(photo)
+				if err != nil {
+					log.Error("error sending chart:", err)
+				}
 
-			if err != nil {
-				log.Error("error deleting chart file:", err)
-			}
+				if err != nil {
+					log.Error("error deleting chart file:", err)
+				}
 
-			return ""
+				return ""
+			} else {
+				text = caption
+			}
 		}
 	case "o":
 		chartData, caption, err := commands.CommandChartWithTicker(u.Message.CommandArguments())
 		if err != nil {
-			text = "invalid coin name|ticker|symbol, please try again"
+			text = "Looks like we don't have the coin you are looking for\\. Please try another coin symbol"
 			log.Error(err)
 		} else {
-			photo := tgbotapi.NewPhoto(u.Message.Chat.ID, tgbotapi.FileBytes{
-				Name:  "chart.png",
-				Bytes: chartData,
-			})
-			photo.Caption = caption
-			photo.ParseMode = "MarkdownV2"
-			photo.ReplyToMessageID = u.Message.MessageID
-			_, err = b.Bot.Send(photo)
-			if err != nil {
-				log.Error("error sending chart:", err)
+			if chartData != nil {
+				photo := tgbotapi.NewPhoto(u.Message.Chat.ID, tgbotapi.FileBytes{
+					Name:  "chart.png",
+					Bytes: chartData,
+				})
+				photo.Caption = caption
+				photo.ParseMode = "MarkdownV2"
+				photo.ReplyToMessageID = u.Message.MessageID
+				_, err = b.Bot.Send(photo)
+				if err != nil {
+					log.Error("error sending chart:", err)
+				}
+
+				if err != nil {
+					log.Error("error deleting chart file:", err)
+				}
+
+				return ""
+			} else {
+				text = caption
 			}
 
-			if err != nil {
-				log.Error("error deleting chart file:", err)
-			}
-
-			return ""
 		}
 	}
 

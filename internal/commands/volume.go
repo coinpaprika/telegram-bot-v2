@@ -16,7 +16,8 @@ func CommandVolume(argument string) (string, error) {
 
 	volumeUSD := ticker.Quotes["USD"].Volume24h
 	if ticker.Name == nil || ticker.ID == nil || volumeUSD == nil {
-		return "", errors.Wrap(errors.New("missing data"), "command /v")
+		return fmt.Sprintf("This coin is not actively traded and doesn't have current price \n"+
+			"For more details visit [coinpaprika.com]https://coinpaprika.com/coin/%s", *ticker.ID), nil
 	}
 
 	return fmt.Sprintf(

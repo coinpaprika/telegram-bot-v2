@@ -30,7 +30,7 @@ func GetTicker(currency *coinpaprika.Coin) (*coinpaprika.Ticker, error) {
 	tickerOpts := &coinpaprika.TickersOptions{Quotes: "USD,BTC,ETH"}
 	ticker, err := paprikaClient.Tickers.GetByID(*currency.ID, tickerOpts)
 	if err != nil {
-		return nil, errors.Wrap(err, "error fetching ticker for: "+*currency.Name)
+		return nil, nil
 	}
 	return ticker, nil
 }
@@ -56,7 +56,7 @@ func GetHistoricalTickers(currency *coinpaprika.Coin) (*coinpaprika.Coin, []*coi
 	}
 	tickers, err := paprikaClient.Tickers.GetHistoricalTickersByID(*currency.ID, tickerOpts)
 	if err != nil {
-		return nil, nil, errors.Wrap(err, "error fetching historical data for: "+*currency.Name)
+		return nil, nil, nil
 	}
 	return currency, tickers, nil
 }

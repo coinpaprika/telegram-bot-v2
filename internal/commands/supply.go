@@ -16,7 +16,8 @@ func CommandSupply(argument string) (string, error) {
 	}
 
 	if ticker.Name == nil || ticker.ID == nil || ticker.CirculatingSupply == nil {
-		return "", errors.Wrap(errors.New("missing data"), "command /s")
+		return fmt.Sprintf("This coin is not actively traded and doesn't have current price \n"+
+			"For more details visit [coinpaprika.com]https://coinpaprika.com/coin/%s", *ticker.ID), nil
 	}
 
 	return fmt.Sprintf(
