@@ -50,8 +50,8 @@ func GetHistoricalTickersByQuery(query string) (*coinpaprika.Coin, []*coinpaprik
 func GetHistoricalTickers(currency *coinpaprika.Coin) (*coinpaprika.Coin, []*coinpaprika.TickerHistorical, error) {
 	tickerOpts := &coinpaprika.TickersHistoricalOptions{
 		Quote:    "USD",
-		Limit:    100,
-		Interval: "2h",
+		Limit:    120,
+		Interval: "3h",
 		Start:    time.Now().Add(-24 * 7 * time.Hour).UTC(),
 	}
 	tickers, err := paprikaClient.Tickers.GetHistoricalTickersByID(*currency.ID, tickerOpts)

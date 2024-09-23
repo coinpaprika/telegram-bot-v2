@@ -45,11 +45,11 @@ func (b *Bot) SendMessage(m Message) error {
 func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 	text := fmt.Sprintf("Please use one of the commands:\n\n" +
 		"/start or /help \tshow this message\n" +
-		"/o <symbol> \t\tcheck the coin overview\n" +
-		"/p <symbol> \t\tcheck the coin price\n" +
-		"/s <symbol> \t\tcheck the circulating supply\n" +
-		"/v <symbol> \t\tcheck the 24h volume\n" +
-		"/c <symbol> \t\tget the price chart\n\n" +
+		"/o \\<symbol\\> \t\tcheck the coin overview\n" +
+		"/p \\<symbol\\> \t\tcheck the coin price\n" +
+		"/s \\<symbol\\> \t\tcheck the circulating supply\n" +
+		"/v \\<symbol\\> \t\tcheck the 24h volume\n" +
+		"/c \\<symbol\\> \t\tget the price chart\n\n" +
 		"/source \t\tshow source code of this bot\n")
 
 	log.Debugf("received command: %s", u.Message.Command())
@@ -57,7 +57,7 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 	var err error = nil
 	switch u.Message.Command() {
 	case "source":
-		text = "https://github.com/coinpaprika/telegram-bot-v2"
+		text = "https://github\\.com/coinpaprika/telegram\\-bot\\-v2"
 	case "p":
 		if text, err = commands.CommandPrice(u.Message.CommandArguments()); err != nil {
 			text = "Looks like we don't have the coin you are looking for\\. Please try another coin symbol"

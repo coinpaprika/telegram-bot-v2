@@ -21,6 +21,7 @@ func CommandSupply(argument string) (string, error) {
 	}
 
 	return fmt.Sprintf(
-		"*%s circulating supply:*\n\n▫️`%d`\n\n[See %s on CoinPaprika 🌶](http://coinpaprika.com/coin/%s)",
-		*ticker.Name, *ticker.CirculatingSupply, *ticker.Name, *ticker.ID), nil
+		"*%s circulating supply:*\n\n▫️`%s`\n\n"+
+			"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)",
+		*ticker.Name, formatSupplyUS(*ticker.CirculatingSupply), *ticker.Symbol, *ticker.ID), nil
 }

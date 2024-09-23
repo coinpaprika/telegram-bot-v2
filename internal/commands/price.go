@@ -21,5 +21,7 @@ func CommandPrice(argument string) (string, error) {
 			"For more details visit [coinpaprika.com]https://coinpaprika.com/coin/%s", *ticker.ID), nil
 	}
 
-	return fmt.Sprintf("*%s price:*\n\n▫️`%.8f` *USD*\n▫️`%.8f` *BTC*\n\n[See %s on CoinPaprika 🌶](https://coinpaprika.com/coin/%s)", *ticker.Name, *priceUSD, *priceBTC, *ticker.Name, *ticker.ID), nil
+	return fmt.Sprintf("*%s price:*\n\n▫️`%s` *USD*\n▫️`%s` *BTC*\n\n"+
+		"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)",
+		*ticker.Name, formatPriceUS(*priceUSD), formatPriceUS(*priceBTC), *ticker.Symbol, *ticker.ID), nil
 }

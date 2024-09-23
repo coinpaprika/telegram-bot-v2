@@ -63,7 +63,9 @@ func CommandChart(argument string) ([]byte, string, error) {
 
 	cacheSet(argument, chartData, *c.Name, 5*time.Minute)
 
-	return chartData, *c.Name, nil
+	return chartData, fmt.Sprintf(
+		"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)",
+		*c.Symbol, *c.ID), nil
 }
 
 func CommandChartWithTicker(argument string) ([]byte, string, error) {
@@ -74,7 +76,11 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 		return cachedItem.ChartData, cachedItem.Caption, nil
 	}
 
-	c, tickers, _ := GetHistoricalTickersByQuery(argument)
+	c, tickers, err := GetHistoricalTickersByQuery(argument)
+	if err != nil {
+		return nil, "", err
+	}
+
 	details, err := GetTicker(c)
 	if err != nil {
 		return nil, "", err
@@ -93,7 +99,7 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 			"▫️*Price Changes:*\n  *1h*: `%.2f%%` \\| *24h*: `%.2f%%` \\| *7d*: `%.2f%%`\n"+
 			"▫️*Vol \\(24h\\):*  `%s` *USD*\n"+
 			"▫️*MCap:*  `%s` *USD*\n"+
-			"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2)",
+			"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)",
 		*details.Name,
 		formatPriceUS(*usdQuote.Price),
 		*usdQuote.PercentChange1h,

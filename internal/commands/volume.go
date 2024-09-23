@@ -21,6 +21,7 @@ func CommandVolume(argument string) (string, error) {
 	}
 
 	return fmt.Sprintf(
-		"*%s 24h volume:*\n\n▫️`%d`\n\n[See %s on CoinPaprika 🌶](http://coinpaprika.com/coin/%s)",
-		*ticker.Name, volumeUSD, *ticker.Name, *ticker.ID), nil
+		"*%s 24h volume:*\n\n▫️`%s` *USD*\n\n"+
+			"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)",
+		*ticker.Name, formatPriceUS(*volumeUSD), *ticker.Symbol, *ticker.ID), nil
 }
