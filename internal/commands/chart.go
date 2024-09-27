@@ -131,41 +131,18 @@ func renderChart(tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 		prices = append(prices, t.Price)
 	}
 
-	// Determine the interval (1d, 1h, or other) based on the time difference between two points
-	var interval string
-	if len(times) > 1 {
-		timeDiff := times[1].Sub(*times[0])
-		if timeDiff.Hours() >= 24 {
-			interval = "1d"
-		} else if timeDiff.Hours() >= 1 {
-			interval = "1h"
-		} else {
-			interval = "other"
-		}
-	} else {
-		interval = "default"
-	}
-
 	// Extract prices and create price value slices for chart rendering
 	priceValues := [][]float64{{}}
 	for _, price := range prices {
 		priceValues[0] = append(priceValues[0], *price)
 	}
 
-	// Create labels for the X-axis based on the interval
 	xLabels := []string{}
+
 	for _, t := range times {
-		switch interval {
-		case "1d":
-			// For 1 day interval, show only the date
-			xLabels = append(xLabels, (*t).Format("02-Jan"))
-		case "1h", "other":
-			// For intervals of 1 hour or less, show both date and time
-			xLabels = append(xLabels, (*t).Format("02-Jan 15:04"))
-		default:
-			// Fallback for other intervals, use a more verbose date and time format
-			xLabels = append(xLabels, (*t).Format(time.RFC822))
-		}
+		currentDay := (*t).Format("02-Jan")
+		xLabels = append(xLabels, currentDay)
+
 	}
 
 	// Validate that the number of xLabels and price values match
