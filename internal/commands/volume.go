@@ -9,15 +9,20 @@ import (
 func CommandVolume(argument string) (string, error) {
 	log.Debugf("processing command /v with argument :%s", argument)
 
-	ticker, err := GetTickerByQuery(argument)
+	c, ticker, err := GetTickerByQuery(argument)
 	if err != nil {
 		return "", errors.Wrap(err, "command /v")
+	}
+
+	if ticker == nil {
+		return fmt.Sprintf("This coin is not actively traded and doesn't have current price \n"+
+			"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s)🌶", *c.ID), nil
 	}
 
 	volumeUSD := ticker.Quotes["USD"].Volume24h
 	if ticker.Name == nil || ticker.ID == nil || volumeUSD == nil {
 		return fmt.Sprintf("This coin is not actively traded and doesn't have current price \n"+
-			"For more details visit [coinpaprika.com]https://coinpaprika.com/coin/%s", *ticker.ID), nil
+			"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s)🌶", *ticker.ID), nil
 	}
 
 	return fmt.Sprintf(

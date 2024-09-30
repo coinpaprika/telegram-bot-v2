@@ -82,7 +82,7 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 		return nil, "", err
 	}
 
-	details, err := GetTicker(c)
+	_, details, err := GetTicker(c)
 	if err != nil {
 		return nil, "", err
 	}
@@ -95,12 +95,12 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 	usdQuote := details.Quotes["USD"]
 
 	caption := fmt.Sprintf(
-		"*%s Overview:*\n\n"+
-			"▫️*Price:*  `%s` *USD* \n"+
-			"▫️*Price Changes:*\n  *1h*: `%.2f%%` \\| *24h*: `%.2f%%` \\| *7d*: `%.2f%%`\n"+
-			"▫️*Vol \\(24h\\):*  `%s` *USD*\n"+
-			"▫️*MCap:*  `%s` *USD*\n"+
-			"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)",
+		"*%s Overview:*\n"+
+			"*Price:*  `%s` *USD* \\| "+
+			"*Changes:*  *1h*: `%.2f%%` \\| *24h*: `%.2f%%` \\| *7d*: `%.2f%%`\n"+
+			"*Vol \\(24h\\):*  `%s` *USD* / "+
+			"*MCap:*  `%s` *USD*\n"+
+			"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
 		*details.Name,
 		formatPriceUS(*usdQuote.Price),
 		*usdQuote.PercentChange1h,
@@ -168,7 +168,7 @@ func renderChart(tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 	// Create the line chart with the labels and price values
 	p, err := chart.LineRender(
 		priceValues,
-		chart.TitleTextOptionFunc("Price over Time - data by CoinPaprika"),
+		chart.TitleTextOptionFunc("CoinPaprika"),
 		chart.ThemeOptionFunc("coinpaprika"),
 		chart.WidthOptionFunc(1200),
 		chart.LegendLabelsOptionFunc([]string{"price"}),

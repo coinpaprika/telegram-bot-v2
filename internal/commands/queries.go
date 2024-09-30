@@ -15,10 +15,10 @@ func init() {
 }
 
 // GetTickerByQuery retrieves the ticker for the given query (symbol, name, etc.)
-func GetTickerByQuery(query string) (*coinpaprika.Ticker, error) {
+func GetTickerByQuery(query string) (*coinpaprika.Coin, *coinpaprika.Ticker, error) {
 	currency, err := searchCoin(query)
 	if err != nil {
-		return nil, errors.Wrap(err, "unable to find coin by query")
+		return nil, nil, errors.Wrap(err, "unable to find coin by query")
 	}
 
 	log.Debugf("Best match for query '%s' is: %s", query, *currency.ID)
@@ -26,13 +26,14 @@ func GetTickerByQuery(query string) (*coinpaprika.Ticker, error) {
 }
 
 // GetTicker fetches the current ticker for the given coin.
-func GetTicker(currency *coinpaprika.Coin) (*coinpaprika.Ticker, error) {
+func GetTicker(currency *coinpaprika.Coin) (*coinpaprika.Coin, *coinpaprika.Ticker, error) {
 	tickerOpts := &coinpaprika.TickersOptions{Quotes: "USD,BTC,ETH"}
 	ticker, err := paprikaClient.Tickers.GetByID(*currency.ID, tickerOpts)
+
 	if err != nil {
-		return nil, nil
+		return currency, nil, nil
 	}
-	return ticker, nil
+	return currency, ticker, nil
 }
 
 // GetHistoricalTickersByQuery fetches historical tickers for the given query.
