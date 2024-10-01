@@ -96,10 +96,10 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 	usdQuote := details.Quotes["USD"]
 
 	caption := fmt.Sprintf(
-		"*Price:*  $`%s` \\| "+
+		"*Price:*  `$%s` \\| "+
 			"*Changes:*  *1h*: `%.2f%%` \\| *24h*: `%.2f%%` \\| *7d*: `%.2f%%`\n"+
-			"*Vol \\(24h\\):*  $`%s` / "+
-			"*MCap:*  $`%s`\n"+
+			"*Vol \\(24h\\):*  `$%s` / "+
+			"*MCap:*  `$%s`\n"+
 			"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
 
 		formatPriceUS(*usdQuote.Price),
