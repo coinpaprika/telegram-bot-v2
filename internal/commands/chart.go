@@ -7,6 +7,7 @@ import (
 	"github.com/pkg/errors"
 	"github.com/wcharczuk/go-chart/v2/drawing"
 	"log"
+	"math"
 	"time"
 )
 
@@ -95,20 +96,19 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 	usdQuote := details.Quotes["USD"]
 
 	caption := fmt.Sprintf(
-		"*%s Overview:*\n"+
-			"*Price:*  `%s` *USD* \\| "+
+		"*Price:*  $`%s` \\| "+
 			"*Changes:*  *1h*: `%.2f%%` \\| *24h*: `%.2f%%` \\| *7d*: `%.2f%%`\n"+
-			"*Vol \\(24h\\):*  `%s` *USD* / "+
-			"*MCap:*  `%s` *USD*\n"+
+			"*Vol \\(24h\\):*  $`%s` / "+
+			"*MCap:*  $`%s`\n"+
 			"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
-		*details.Name,
+
 		formatPriceUS(*usdQuote.Price),
 		*usdQuote.PercentChange1h,
 		*usdQuote.PercentChange24h,
 		*usdQuote.PercentChange7d,
-		formatPriceUS(*usdQuote.Volume24h),
-		formatPriceUS(*usdQuote.MarketCap),
-		*details.Symbol,
+		formatPriceUS(math.Round(*usdQuote.Volume24h)),
+		formatPriceUS(math.Round(*usdQuote.MarketCap)),
+		*details.Name,
 		*details.ID,
 	)
 
