@@ -22,6 +22,18 @@ func formatPriceUS(price float64) string {
 	return formatted
 }
 
+func formatPriceRoundedUS(price float64) string {
+	roundedPrice := int(price + 0.5)
+
+	thousandSeparator := ","
+
+	p := message.NewPrinter(language.English)
+	withCommaThousandSep := p.Sprintf("%d", roundedPrice)
+	formatted := strings.ReplaceAll(withCommaThousandSep, ",", thousandSeparator)
+
+	return formatted
+}
+
 func formatSupplyUS(supply int64) string {
 	p := message.NewPrinter(language.English)
 	return p.Sprintf("%d", supply)

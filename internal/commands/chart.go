@@ -106,8 +106,8 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 		*usdQuote.PercentChange1h,
 		*usdQuote.PercentChange24h,
 		*usdQuote.PercentChange7d,
-		formatPriceUS(math.Round(*usdQuote.Volume24h)),
-		formatPriceUS(math.Round(*usdQuote.MarketCap)),
+		formatPriceRoundedUS(math.Round(*usdQuote.Volume24h)),
+		formatPriceRoundedUS(math.Round(*usdQuote.MarketCap)),
 		*details.Name,
 		*details.ID,
 	)
