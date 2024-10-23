@@ -6,6 +6,15 @@ import (
 	"strings"
 )
 
+func escapeMarkdownV2(text string) string {
+	charactersToEscape := []string{".", "-", "_", "*", "[", "]", "(", ")", "~", "`", ">", "#", "+", "=", "|", "{", "}", "!"}
+
+	for _, char := range charactersToEscape {
+		text = strings.ReplaceAll(text, char, "\\"+char)
+	}
+	return text
+}
+
 func formatPriceUS(price float64) string {
 	decimals := 6
 	if price > 1.2 {
@@ -19,7 +28,7 @@ func formatPriceUS(price float64) string {
 	withCommaThousandSep := p.Sprintf("%.*f", decimals, price)
 	formatted := strings.ReplaceAll(withCommaThousandSep, ",", thousandSeparator)
 
-	return formatted
+	return escapeMarkdownV2(formatted)
 }
 
 func formatPriceRoundedUS(price float64) string {
@@ -31,10 +40,10 @@ func formatPriceRoundedUS(price float64) string {
 	withCommaThousandSep := p.Sprintf("%d", roundedPrice)
 	formatted := strings.ReplaceAll(withCommaThousandSep, ",", thousandSeparator)
 
-	return formatted
+	return escapeMarkdownV2(formatted)
 }
 
 func formatSupplyUS(supply int64) string {
 	p := message.NewPrinter(language.English)
-	return p.Sprintf("%d", supply)
+	return escapeMarkdownV2(p.Sprintf("%d", supply))
 }

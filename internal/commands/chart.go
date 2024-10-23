@@ -97,20 +97,20 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 
 	caption := fmt.Sprintf(
 		"*%s*\n"+
-			"`Price:`  $%s\n "+
-			"`1h price change:` %.2f%%\n"+
-			"`24h price change:` %.2f%%\n"+
-			"`7d price change:` %.2f%%\n"+
-			"`Vol:`  $%s\n"+
+			"`Price:`  $%s\n"+
+			"`1h price change:` %s%%\n"+
+			"`24h price change:` %s%%\n"+
+			"`7d price change:` %s%%\n"+
+			"`Vol:`  $%s \n"+
 			"`MCap:`  $%s\n"+
 			"`Circulating Supply:`  %s *%s*\n"+
 			"`Total Supply:`  %s *%s*\n"+
 			"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
 		*details.Name,
 		formatPriceUS(*usdQuote.Price),
-		*usdQuote.PercentChange1h,
-		*usdQuote.PercentChange24h,
-		*usdQuote.PercentChange7d,
+		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange1h)),  // Escaping percentage
+		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange24h)), // Escaping percentage
+		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange7d)),  // Escaping percentage
 		formatPriceRoundedUS(math.Round(*usdQuote.Volume24h)),
 		formatPriceRoundedUS(math.Round(*usdQuote.MarketCap)),
 		func() string {
