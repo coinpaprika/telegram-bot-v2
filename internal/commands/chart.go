@@ -101,10 +101,10 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 			"`1h price change:` %.2f%%\n"+
 			"`24h price change:` %.2f%%\n"+
 			"`7d price change:` %.2f%%\n"+
-			"`Vol \\(24h\\):`  $%s / "+
+			"`Vol:`  $%s / "+
 			"`MCap:`  $%s\n"+
-			"▫️`Circulating Supply:`  %s *%s*\n"+
-			"▫️`Total Supply:`  %s *%s*\n"+
+			"`Circulating Supply:`  %s *%s*\n"+
+			"`Total Supply:`  %s *%s*\n"+
 			"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
 		*details.Name,
 		formatPriceUS(*usdQuote.Price),
