@@ -96,18 +96,32 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 	usdQuote := details.Quotes["USD"]
 
 	caption := fmt.Sprintf(
-		"*Price:*  `$%s` \\| "+
-			"*Changes:*  *1h*: `%.2f%%` \\| *24h*: `%.2f%%` \\| *7d*: `%.2f%%`\n"+
-			"*Vol \\(24h\\):*  `$%s` / "+
-			"*MCap:*  `$%s`\n"+
+		"*%s*\n"+
+			"`Price:`  $%s\n "+
+			"`1h price change:` %.2f%%\n"+
+			"`24h price change:` %.2f%%\n"+
+			"`7d price change:` %.2f%%\n"+
+			"`Vol \\(24h\\):`  $%s / "+
+			"`MCap:`  $%s\n"+
+			"▫️`Circulating Supply:`  %s *%s*\n"+
+			"▫️`Total Supply:`  %s *%s*\n"+
 			"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
-
+		*details.Name,
 		formatPriceUS(*usdQuote.Price),
 		*usdQuote.PercentChange1h,
 		*usdQuote.PercentChange24h,
 		*usdQuote.PercentChange7d,
 		formatPriceRoundedUS(math.Round(*usdQuote.Volume24h)),
 		formatPriceRoundedUS(math.Round(*usdQuote.MarketCap)),
+		func() string {
+			if details.CirculatingSupply != nil {
+				return formatSupplyUS(*details.CirculatingSupply)
+			}
+			return "N/A"
+		}(),
+		*details.Symbol,
+		formatSupplyUS(*details.TotalSupply),
+		*details.Symbol,
 		*details.Name,
 		*details.ID,
 	)
