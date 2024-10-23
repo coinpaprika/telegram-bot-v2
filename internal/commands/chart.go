@@ -101,7 +101,7 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 			"`1h price change:` %.2f%%\n"+
 			"`24h price change:` %.2f%%\n"+
 			"`7d price change:` %.2f%%\n"+
-			"`Vol:`  $%s / "+
+			"`Vol:`  $%s\n"+
 			"`MCap:`  $%s\n"+
 			"`Circulating Supply:`  %s *%s*\n"+
 			"`Total Supply:`  %s *%s*\n"+
