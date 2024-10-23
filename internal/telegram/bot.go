@@ -49,12 +49,15 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 		"/p \\<symbol\\> \t\tcheck the coin price\n" +
 		"/s \\<symbol\\> \t\tcheck the circulating supply\n" +
 		"/v \\<symbol\\> \t\tcheck the 24h volume\n" +
-		"/c \\<symbol\\> \t\tget the price chart\n\n" +
+		"/c \\<symbol\\> \t\tget the price chart\n" +
+		"$<symbol> \t\tcheck the coin overview (e.g., $btc)\n\n" +
 		"/source \t\tshow source code of this bot\n")
 
 	log.Debugf("received command: %s", u.Message.Command())
 
 	var err error = nil
+
+	// Handle commands starting with /
 	switch u.Message.Command() {
 	case "source":
 		text = "https://github\\.com/coinpaprika/telegram\\-bot\\-v2"
@@ -91,11 +94,6 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 				if err != nil {
 					log.Error("error sending chart:", err)
 				}
-
-				if err != nil {
-					log.Error("error deleting chart file:", err)
-				}
-
 				return ""
 			} else {
 				text = caption
@@ -119,16 +117,36 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 				if err != nil {
 					log.Error("error sending chart:", err)
 				}
-
-				if err != nil {
-					log.Error("error deleting chart file:", err)
-				}
-
 				return ""
 			} else {
 				text = caption
 			}
+		}
+	}
 
+	if u.Message.Text != "" && u.Message.Text[0] == '$' {
+		coinSymbol := u.Message.Text[1:]
+		chartData, caption, err := commands.CommandChartWithTicker(coinSymbol)
+		if err != nil {
+			text = "Looks like we don't have the coin you are looking for\\. Please try another coin symbol"
+			log.Error(err)
+		} else {
+			if chartData != nil {
+				photo := tgbotapi.NewPhoto(u.Message.Chat.ID, tgbotapi.FileBytes{
+					Name:  "chart.png",
+					Bytes: chartData,
+				})
+				photo.Caption = caption
+				photo.ParseMode = "MarkdownV2"
+				photo.ReplyToMessageID = u.Message.MessageID
+				_, err = b.Bot.Send(photo)
+				if err != nil {
+					log.Error("error sending chart:", err)
+				}
+				return ""
+			} else {
+				text = caption
+			}
 		}
 	}
 
