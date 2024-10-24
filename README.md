@@ -17,6 +17,7 @@ A Telegram bot that provides cryptocurrency data from CoinPaprika, with Promethe
 |---------------|---------------------------------------------|
 | `/start`      | Display the welcome/help message            |
 | `/help`       | Display the list of commands                |
+| `$<symbol>`   | check the coin overview (e.g., $btc)            |
 | `/o <symbol>` | Check the coin overview                     |
 | `/p <symbol>` | Check the price of a coin                   |
 | `/s <symbol>` | Check the circulating supply of a coin      |
