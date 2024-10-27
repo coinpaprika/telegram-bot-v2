@@ -50,7 +50,7 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 		"/s \\<symbol\\> \t\tcheck the circulating supply\n" +
 		"/v \\<symbol\\> \t\tcheck the 24h volume\n" +
 		"/c \\<symbol\\> \t\tget the price chart\n" +
-		"$<symbol> \t\tcheck the coin overview (e.g., $btc)\n\n" +
+		"$\\<symbol\\> \t\tcheck the coin overview \\(e\\.g\\., $btc\\)\n\n" +
 		"/source \t\tshow source code of this bot\n")
 
 	log.Debugf("received command: %s", u.Message.Command())
