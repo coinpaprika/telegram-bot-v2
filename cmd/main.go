@@ -100,6 +100,10 @@ func handleUpdates(bot *telegram.Bot, updates tgbotapi.UpdatesChannel) {
 			continue
 		}
 
+		if update.Message.IsCommand() == false && (len(update.Message.Text) == 0 || update.Message.Text[0] != '$') {
+			continue
+		}
+
 		metrics.MessagesHandled.Inc()
 
 		updateChannelsSet(update.Message.Chat.ID)
