@@ -54,8 +54,10 @@ func CommandChart(argument string) ([]byte, string, error) {
 	c, tickers, _ := GetHistoricalTickersByQuery(argument)
 
 	if len(tickers) <= 0 {
-		return nil, fmt.Sprintf("This coin is not actively traded and doesn't have current price \n"+
-			"For more details visit [CoinPaprika]https://coinpaprika\\.com/coin/%s🌶", *c.ID), nil
+		return nil, fmt.Sprintf(
+			"[%s \\(%s\\)](https://coinpaprika.com/coin/%s) coin is not actively traded and does not have current price \n"+
+				"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
+			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
 	chartData, err := renderChart(tickers)
@@ -89,8 +91,10 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 	}
 
 	if details == nil || details.Quotes == nil {
-		return nil, fmt.Sprintf("This coin is not actively traded and does not have current price \n"+
-			"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s)🌶", *c.ID), nil
+		return nil, fmt.Sprintf(
+			"[%s \\(%s\\)](https://coinpaprika.com/coin/%s) coin is not actively traded and does not have current price \n"+
+				"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
+			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
 	usdQuote := details.Quotes["USD"]

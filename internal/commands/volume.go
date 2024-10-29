@@ -15,14 +15,18 @@ func CommandVolume(argument string) (string, error) {
 	}
 
 	if ticker == nil {
-		return fmt.Sprintf("This coin is not actively traded and doesn't have current price \n"+
-			"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s)🌶", *c.ID), nil
+		return fmt.Sprintf(
+			"[%s \\(%s\\)](https://coinpaprika.com/coin/%s) coin is not actively traded and does not have current price \n"+
+				"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
+			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
 	volumeUSD := ticker.Quotes["USD"].Volume24h
 	if ticker.Name == nil || ticker.ID == nil || volumeUSD == nil {
-		return fmt.Sprintf("This coin is not actively traded and doesn't have current price \n"+
-			"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s)🌶", *ticker.ID), nil
+		return fmt.Sprintf(
+			"[%s \\(%s\\)](https://coinpaprika.com/coin/%s) coin is not actively traded and does not have current price \n"+
+				"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
+			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
 	return fmt.Sprintf(
