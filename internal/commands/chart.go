@@ -12,32 +12,28 @@ import (
 )
 
 func init() {
-	// Define CoinPaprika's red-centric color scheme for series
-	coinPaprikaSeriesColors := []drawing.Color{
-		{R: 211, G: 47, B: 47, A: 255}, // #D32F2F -> Primary Red
-		{R: 255, G: 82, B: 82, A: 255}, // #FF5252 -> Lighter Red
-		{R: 183, G: 28, B: 28, A: 255}, // #B71C1C -> Dark Red
-		{R: 239, G: 83, B: 80, A: 255}, // #EF5350 -> Red with some pinkish tone
+	darkGrayBlueSeriesColors := []drawing.Color{
+		{R: 0, G: 122, B: 255, A: 255},
+		{R: 0, G: 122, B: 255, A: 25},
 	}
 
-	// Add a new "coinpaprika" theme to the charts package
 	chart.AddTheme(
-		"coinpaprika",
+		"darkgrayblue",
 		chart.ThemeOption{
-			IsDarkMode: false, // Light mode theme
+			IsDarkMode: true,
 			AxisStrokeColor: chart.Color{
-				R: 0, G: 0, B: 0, A: 255, // Sharp black for axis lines
+				R: 200, G: 200, B: 200, A: 255,
 			},
 			AxisSplitLineColor: chart.Color{
-				R: 200, G: 200, B: 200, A: 255, // Light grey for grid/split lines
+				R: 100, G: 100, B: 100, A: 128,
 			},
 			BackgroundColor: chart.Color{
-				R: 255, G: 255, B: 255, A: 255, // Pure white background
+				R: 55, G: 55, B: 55, A: 255,
 			},
 			TextColor: chart.Color{
-				R: 0, G: 0, B: 0, A: 255, // Sharp black for text
+				R: 200, G: 200, B: 200, A: 255,
 			},
-			SeriesColors: coinPaprikaSeriesColors, // Apply the defined series colors
+			SeriesColors: darkGrayBlueSeriesColors,
 		},
 	)
 }
@@ -100,7 +96,7 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 	usdQuote := details.Quotes["USD"]
 
 	caption := fmt.Sprintf(
-		"[%s \\(%s\\)](https://coinpaprika.com/coin/%s)\n"+
+		"[%s](https://coinpaprika.com/coin/%s) \\(%s\\)\n"+
 			"Price:  *$%s*\n"+
 			"1h price change: *%s%%*\n"+
 			"24h price change: *%s%%*\n"+
@@ -111,8 +107,8 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 			"Total Supply:  *%s %s*\n\n"+
 			"[%s on CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
 		escapeMarkdownV2(*details.Name),
-		*details.Symbol,
 		*details.ID,
+		*details.Symbol,
 		formatPriceUS(*usdQuote.Price),
 		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange1h)),  // Escaping percentage
 		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange24h)), // Escaping percentage
@@ -146,19 +142,16 @@ func renderChart(tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 	var times []*time.Time
 	var prices []*float64
 
-	// Extract timestamps and prices from the tickers
 	for _, t := range tickers {
 		times = append(times, t.Timestamp)
 		prices = append(prices, t.Price)
 	}
 
-	// Create price value slices for chart rendering
 	priceValues := [][]float64{{}}
 	for _, price := range prices {
 		priceValues[0] = append(priceValues[0], *price)
 	}
 
-	// Generate x-axis labels for each unique day
 	xLabels := []string{}
 	var lastDay string
 	for _, t := range times {
@@ -167,64 +160,52 @@ func renderChart(tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 			xLabels = append(xLabels, currentDay)
 			lastDay = currentDay
 		} else {
-			xLabels = append(xLabels, "-") // Use an empty string for same-day points
+			xLabels = append(xLabels, "-")
 		}
 	}
 
-	// Validate that the number of xLabels and price values match
 	if len(xLabels) != len(priceValues[0]) {
 		return nil, errors.New("mismatch between number of labels and data points")
 	}
 
-	// Calculate the min and max prices and add padding
 	minPrice, maxPrice := getMinMax(prices)
 	padding := (maxPrice - minPrice) * 0.1
 	minValue := minPrice - padding
 	maxValue := maxPrice + padding
 
-	// Set the price format dynamically based on the price range
 	priceFormat := getPriceFormat(minPrice, maxPrice)
 
-	// Create the line chart with the labels and price values
 	p, err := chart.LineRender(
 		priceValues,
 		chart.TitleTextOptionFunc("CoinPaprika"),
-		chart.ThemeOptionFunc("coinpaprika"),
+		chart.ThemeOptionFunc("darkgrayblue"),
 		chart.WidthOptionFunc(1200),
 		chart.LegendLabelsOptionFunc([]string{""}),
 
 		func(opt *chart.ChartOption) {
+			opt.BackgroundColor = chart.Color{R: 55, G: 55, B: 55, A: 255}
 			opt.FillArea = true
-			opt.LineStrokeWidth = 2.0
-
-			showSymbol := true
-			opt.SymbolShow = &showSymbol
+			opt.SymbolShow = BoolPtr(true)
+			opt.Opacity = 160 // Increase overall transparency
 
 			opt.ValueFormatter = func(v float64) string {
 				return fmt.Sprintf(priceFormat, v)
 			}
 
-			// Configure the X-axis with tighter control over boundary gap and alignment
 			opt.XAxis = chart.XAxisOption{
 				Data:        xLabels,
-				BoundaryGap: BoolPtr(false), // Set BoundaryGap to false for tight alignment
-				FontSize:    12,             // Keep font size readable
-				FontColor:   drawing.Color{R: 0, G: 0, B: 0, A: 255},
+				BoundaryGap: BoolPtr(false),
+				FontSize:    12,
+				FontColor:   chart.Color{R: 200, G: 200, B: 200, A: 255},
 				Show:        BoolPtr(true),
-				LabelOffset: chart.Box{
-					Top:   15, // Increase offset to push x-axis labels down
-					Left:  20, // Add padding to the left
-					Right: 20, // Add padding to the right
-				},
 			}
 
-			// Customize the Y-axis for dynamic price range
 			opt.YAxisOptions = []chart.YAxisOption{
 				{
 					Min:           &minValue,
 					Max:           &maxValue,
 					FontSize:      12,
-					FontColor:     chart.Color{R: 0, G: 0, B: 0, A: 255},
+					FontColor:     chart.Color{R: 200, G: 200, B: 200, A: 255},
 					Position:      "left",
 					SplitLineShow: BoolPtr(true),
 				},
@@ -236,7 +217,6 @@ func renderChart(tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 		return nil, err
 	}
 
-	// Render the chart as a byte array
 	buf, err := p.Bytes()
 	if err != nil {
 		return nil, err
@@ -244,7 +224,6 @@ func renderChart(tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 
 	return buf, nil
 }
-
 func getMinMax(prices []*float64) (min, max float64) {
 	if len(prices) == 0 {
 		return 0, 1
