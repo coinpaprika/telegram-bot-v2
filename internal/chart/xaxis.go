@@ -90,6 +90,8 @@ func (opt *XAxisOption) ToAxisOption() AxisOption {
 		TextRotation:   opt.TextRotation,
 		LabelOffset:    opt.LabelOffset,
 		FirstAxis:      opt.FirstAxis,
+		SplitLineShow:  true,
+		TickLength:     6,
 	}
 	if opt.isValueAxis {
 		axisOpt.SplitLineShow = true

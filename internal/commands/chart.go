@@ -56,7 +56,7 @@ func CommandChart(argument string) ([]byte, string, error) {
 			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
-	chartData, err := renderChart(tickers)
+	chartData, err := renderChart(c, tickers)
 	if err != nil {
 		return nil, "", err
 	}
@@ -128,7 +128,7 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 		*details.ID,
 	)
 
-	chartData, err := renderChart(tickers)
+	chartData, err := renderChart(c, tickers)
 	if err != nil {
 		return nil, "", err
 	}
@@ -138,7 +138,7 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 	return chartData, caption, nil
 }
 
-func renderChart(tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
+func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 	var times []*time.Time
 	var prices []*float64
 
@@ -175,21 +175,28 @@ func renderChart(tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 
 	priceFormat := getPriceFormat(minPrice, maxPrice)
 
+	// Render chart with the specified options
 	p, err := chart.LineRender(
 		priceValues,
 		chart.TitleTextOptionFunc("CoinPaprika"),
 		chart.ThemeOptionFunc("darkgrayblue"),
 		chart.WidthOptionFunc(1200),
 		chart.LegendLabelsOptionFunc([]string{""}),
-
 		func(opt *chart.ChartOption) {
 			opt.BackgroundColor = chart.Color{R: 55, G: 55, B: 55, A: 255}
 			opt.FillArea = true
 			opt.SymbolShow = BoolPtr(true)
-			opt.Opacity = 160 // Increase overall transparency
+			opt.Opacity = 1
+			opt.Title = chart.TitleOption{
+				Theme:   nil,
+				Text:    "CoinPaprika",
+				Left:    "center", // Centered title
+				Top:     "20px",   // Adds more space from Y-axis
+				Subtext: "7 days chart for " + *c.Name,
+			}
 
 			opt.ValueFormatter = func(v float64) string {
-				return fmt.Sprintf(priceFormat, v)
+				return fmt.Sprintf(priceFormat, math.Round(v*100)/100) // Rounded Y-axis labels
 			}
 
 			opt.XAxis = chart.XAxisOption{
@@ -198,6 +205,7 @@ func renderChart(tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 				FontSize:    12,
 				FontColor:   chart.Color{R: 200, G: 200, B: 200, A: 255},
 				Show:        BoolPtr(true),
+				StrokeColor: chart.Color{R: 122, G: 91, B: 12, A: 255},
 			}
 
 			opt.YAxisOptions = []chart.YAxisOption{
@@ -207,7 +215,8 @@ func renderChart(tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 					FontSize:      12,
 					FontColor:     chart.Color{R: 200, G: 200, B: 200, A: 255},
 					Position:      "left",
-					SplitLineShow: BoolPtr(true),
+					SplitLineShow: BoolPtr(true), // Horizontal lines across chart
+
 				},
 			}
 		},
@@ -224,6 +233,7 @@ func renderChart(tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 
 	return buf, nil
 }
+
 func getMinMax(prices []*float64) (min, max float64) {
 	if len(prices) == 0 {
 		return 0, 1
@@ -242,10 +252,11 @@ func getMinMax(prices []*float64) (min, max float64) {
 }
 
 func getPriceFormat(_, maxPrice float64) string {
-	if maxPrice >= 1 {
+	if maxPrice >= 1000 {
+		return "$%.0f"
+	} else if maxPrice >= 1 {
 		return "$%.2f"
-	}
-	if maxPrice >= 0.01 {
+	} else if maxPrice >= 0.01 {
 		return "$%.4f"
 	}
 	return "$%.8f"

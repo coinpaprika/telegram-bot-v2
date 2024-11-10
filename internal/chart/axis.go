@@ -248,7 +248,7 @@ func (a *axisPainter) Render() (Box, error) {
 		Unit:         1,
 		Position:     labelPosition,
 		TextRotation: opt.TextRotation,
-		Offset:       Box{Top: -10}, // Reduce Top offset to align better
+		Offset:       Box{Top: 0}, // Reduce Top offset to align better
 	})
 
 	// Render vertical grid lines if necessary

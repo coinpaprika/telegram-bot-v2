@@ -84,7 +84,7 @@ func (opt *YAxisOption) ToAxisOption(p *Painter) AxisOption {
 		Data:           opt.Data,
 		Position:       position,
 		FontSize:       opt.FontSize,
-		StrokeWidth:    -1,
+		StrokeWidth:    1,
 		Font:           opt.Font,
 		FontColor:      opt.FontColor,
 		BoundaryGap:    FalseFlag(),
