@@ -15,20 +15,27 @@ func escapeMarkdownV2(text string) string {
 	return text
 }
 
-func formatPriceUS(price float64) string {
+func formatPriceUS(price float64, escapeMarkdown bool) string {
 	decimals := 6
-	if price > 1.2 {
+
+	if price >= 1000 {
+		decimals = 0
+	} else if price > 1.2 {
 		decimals = 2
 	} else if price < 0.00001 {
 		decimals = 8
 	}
+
 	thousandSeparator := ","
 
 	p := message.NewPrinter(language.English)
 	withCommaThousandSep := p.Sprintf("%.*f", decimals, price)
 	formatted := strings.ReplaceAll(withCommaThousandSep, ",", thousandSeparator)
 
-	return escapeMarkdownV2(formatted)
+	if escapeMarkdown {
+		return escapeMarkdownV2(formatted)
+	}
+	return formatted
 }
 
 func formatPriceRoundedUS(price float64) string {

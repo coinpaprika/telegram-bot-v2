@@ -32,5 +32,5 @@ func CommandPrice(argument string) (string, error) {
 
 	return fmt.Sprintf("*%s price:*\n\n▫️`%s` *USD*\n▫️`%s` *BTC*\n\n"+
 		"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)",
-		*ticker.Name, formatPriceUS(*priceUSD), formatPriceUS(*priceBTC), *ticker.Symbol, *ticker.ID), nil
+		*ticker.Name, formatPriceUS(*priceUSD, true), formatPriceUS(*priceBTC, true), *ticker.Symbol, *ticker.ID), nil
 }

@@ -109,7 +109,7 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 		escapeMarkdownV2(*details.Name),
 		*details.ID,
 		*details.Symbol,
-		formatPriceUS(*usdQuote.Price),
+		formatPriceUS(*usdQuote.Price, true),
 		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange1h)),  // Escaping percentage
 		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange24h)), // Escaping percentage
 		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange7d)),  // Escaping percentage
@@ -173,8 +173,6 @@ func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical) (
 	minValue := minPrice - padding
 	maxValue := maxPrice + padding
 
-	priceFormat := getPriceFormat(minPrice, maxPrice)
-
 	// Render chart with the specified options
 	p, err := chart.LineRender(
 		priceValues,
@@ -188,15 +186,14 @@ func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical) (
 			opt.SymbolShow = BoolPtr(true)
 			opt.Opacity = 1
 			opt.Title = chart.TitleOption{
-				Theme:   nil,
-				Text:    "CoinPaprika",
-				Left:    "center", // Centered title
-				Top:     "20px",   // Adds more space from Y-axis
-				Subtext: "7 days chart for " + *c.Name,
+				Theme: nil,
+				Text:  fmt.Sprintf("%s 7 days price chart (%s) - CoinPaprika", *c.Name, *c.Symbol),
+				Left:  "center", // Centered title
+				Top:   "20px",   // Adds more space from Y-axis
 			}
 
 			opt.ValueFormatter = func(v float64) string {
-				return fmt.Sprintf(priceFormat, math.Round(v*100)/100) // Rounded Y-axis labels
+				return formatPriceUS(v, false)
 			}
 
 			opt.XAxis = chart.XAxisOption{
@@ -253,11 +250,11 @@ func getMinMax(prices []*float64) (min, max float64) {
 
 func getPriceFormat(_, maxPrice float64) string {
 	if maxPrice >= 1000 {
-		return "$%.0f"
+		return "%.0f"
 	} else if maxPrice >= 1 {
-		return "$%.2f"
+		return "%.2f"
 	} else if maxPrice >= 0.01 {
-		return "$%.4f"
+		return "%.4f"
 	}
 	return "$%.8f"
 }
