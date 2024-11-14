@@ -21,9 +21,6 @@ func init() {
 		"darkgrayblue",
 		chart.ThemeOption{
 			IsDarkMode: true,
-			AxisStrokeColor: chart.Color{
-				R: 200, G: 200, B: 200, A: 255,
-			},
 			AxisSplitLineColor: chart.Color{
 				R: 100, G: 100, B: 100, A: 128,
 			},
@@ -52,7 +49,7 @@ func CommandChart(argument string) ([]byte, string, error) {
 	if len(tickers) <= 0 {
 		return nil, fmt.Sprintf(
 			"[%s \\(%s\\)](https://coinpaprika.com/coin/%s) coin is not actively traded and does not have current price \n"+
-				"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
+				"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s) 🌶",
 			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
@@ -64,7 +61,7 @@ func CommandChart(argument string) ([]byte, string, error) {
 	cacheSet(argument, chartData, *c.Name, 5*time.Minute)
 
 	return chartData, fmt.Sprintf(
-		"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)",
+		"%s on [CoinPaprika](https://coinpaprika.com/coin/%s) 🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)",
 		*c.Symbol, *c.ID), nil
 }
 
@@ -89,7 +86,7 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 	if details == nil || details.Quotes == nil {
 		return nil, fmt.Sprintf(
 			"[%s \\(%s\\)](https://coinpaprika.com/coin/%s) coin is not actively traded and does not have current price \n"+
-				"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
+				"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s) 🌶",
 			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
@@ -105,7 +102,7 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 			"MCap:  *$%s*\n"+
 			"Circ\\. Supply:  *%s %s*\n"+
 			"Total Supply:  *%s %s*\n\n"+
-			"[%s on CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
+			"[%s on CoinPaprika](https://coinpaprika.com/coin/%s) 🌶",
 		escapeMarkdownV2(*details.Name),
 		*details.ID,
 		*details.Symbol,
@@ -184,7 +181,7 @@ func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical) (
 			opt.BackgroundColor = chart.Color{R: 55, G: 55, B: 55, A: 255}
 			opt.FillArea = true
 			opt.SymbolShow = BoolPtr(true)
-			opt.Opacity = 1
+			opt.Opacity = 35
 			opt.Title = chart.TitleOption{
 				Theme: nil,
 				Text:  fmt.Sprintf("%s 7 days price chart (%s) - CoinPaprika", *c.Name, *c.Symbol),
@@ -202,7 +199,7 @@ func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical) (
 				FontSize:    12,
 				FontColor:   chart.Color{R: 200, G: 200, B: 200, A: 255},
 				Show:        BoolPtr(true),
-				StrokeColor: chart.Color{R: 122, G: 91, B: 12, A: 255},
+				StrokeColor: chart.Color{R: 0, G: 0, B: 0, A: 255}, // Set a visible stroke color for X-axis
 			}
 
 			opt.YAxisOptions = []chart.YAxisOption{
@@ -213,7 +210,7 @@ func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical) (
 					FontColor:     chart.Color{R: 200, G: 200, B: 200, A: 255},
 					Position:      "left",
 					SplitLineShow: BoolPtr(true), // Horizontal lines across chart
-
+					Show:          BoolPtr(true),
 				},
 			}
 		},
