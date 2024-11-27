@@ -15,12 +15,14 @@ import (
 )
 
 type BotMetrics struct {
-	CommandsProcessed prometheus.Counter
-	MessagesHandled   prometheus.Counter
-	ChannelsCount     prometheus.Gauge
-	ChannelsGaugeVec  *prometheus.GaugeVec
-	ChannelsSet       map[int64]string
-	Mutex             sync.Mutex
+	CommandsProcessed  prometheus.Counter
+	MessagesHandled    prometheus.Counter
+	ChannelsCount      prometheus.Gauge
+	ChannelsGaugeVec   *prometheus.GaugeVec
+	CommandsPerChannel *prometheus.CounterVec
+	MessagesPerChannel *prometheus.CounterVec
+	ChannelsSet        map[int64]string
+	Mutex              sync.Mutex
 }
 
 var (
@@ -61,6 +63,24 @@ func NewBotMetrics() *BotMetrics {
 			},
 			[]string{"channel_name"},
 		),
+		CommandsPerChannel: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: "coinpaprika",
+				Subsystem: "telegram_bot",
+				Name:      "commands_per_channel",
+				Help:      "The total number of commands processed per channel",
+			},
+			[]string{"channel_name"},
+		),
+		MessagesPerChannel: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: "coinpaprika",
+				Subsystem: "telegram_bot",
+				Name:      "messages_per_channel",
+				Help:      "The total number of messages handled per channel",
+			},
+			[]string{"channel_name"},
+		),
 		ChannelsSet: make(map[int64]string),
 	}
 
@@ -68,6 +88,8 @@ func NewBotMetrics() *BotMetrics {
 	prometheus.MustRegister(metrics.MessagesHandled)
 	prometheus.MustRegister(metrics.ChannelsCount)
 	prometheus.MustRegister(metrics.ChannelsGaugeVec)
+	prometheus.MustRegister(metrics.CommandsPerChannel)
+	prometheus.MustRegister(metrics.MessagesPerChannel)
 
 	return metrics
 }
@@ -110,24 +132,24 @@ func handleUpdates(bot *telegram.Bot, updates tgbotapi.UpdatesChannel) {
 			continue
 		}
 
-		if !update.Message.IsCommand() && (len(update.Message.Text) == 0 || update.Message.Text[0] != '$') {
-			continue
-		}
-
-		metrics.MessagesHandled.Inc()
-
 		chatID := update.Message.Chat.ID
 		chatName := update.Message.Chat.Title
 		if chatName == "" {
 			chatName = fmt.Sprintf("PrivateChat_%d", chatID)
 		}
 
+		metrics.MessagesHandled.Inc()
+		metrics.MessagesPerChannel.WithLabelValues(chatName).Inc() // Increment per-channel messages
+
 		updateChannelsSet(chatID, chatName)
-		handleCommand(bot, update)
+
+		if update.Message.IsCommand() {
+			handleCommand(bot, update, chatName)
+		}
 	}
 }
 
-func handleCommand(bot *telegram.Bot, update tgbotapi.Update) {
+func handleCommand(bot *telegram.Bot, update tgbotapi.Update, chatName string) {
 	defer func() {
 		if r := recover(); r != nil {
 			stackBuf := make([]byte, 1024)
@@ -147,6 +169,7 @@ func handleCommand(bot *telegram.Bot, update tgbotapi.Update) {
 		log.Errorf("Failed to send message: %v", err)
 	} else {
 		metrics.CommandsProcessed.Inc()
+		metrics.CommandsPerChannel.WithLabelValues(chatName).Inc() // Increment per-channel commands
 	}
 }
 
