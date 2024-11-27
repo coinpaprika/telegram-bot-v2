@@ -127,8 +127,7 @@ func setupLogging() {
 
 func handleUpdates(bot *telegram.Bot, updates tgbotapi.UpdatesChannel) {
 	for update := range updates {
-		if update.Message == nil {
-			log.Debug("Received non-message or non-command")
+		if !update.Message.IsCommand() && (len(update.Message.Text) == 0 || update.Message.Text[0] != '$') {
 			continue
 		}
 
@@ -143,9 +142,7 @@ func handleUpdates(bot *telegram.Bot, updates tgbotapi.UpdatesChannel) {
 
 		updateChannelsSet(chatID, chatName)
 
-		if update.Message.IsCommand() {
-			handleCommand(bot, update, chatName)
-		}
+		handleCommand(bot, update, chatName)
 	}
 }
 
