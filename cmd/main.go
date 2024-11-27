@@ -18,7 +18,8 @@ type BotMetrics struct {
 	CommandsProcessed prometheus.Counter
 	MessagesHandled   prometheus.Counter
 	ChannelsCount     prometheus.Gauge
-	ChannelsSet       map[int64]struct{}
+	ChannelsGaugeVec  *prometheus.GaugeVec
+	ChannelsSet       map[int64]string
 	Mutex             sync.Mutex
 }
 
@@ -51,12 +52,22 @@ func NewBotMetrics() *BotMetrics {
 			Name:      "channels_count",
 			Help:      "The current number of unique channels the bot is operating in",
 		}),
-		ChannelsSet: make(map[int64]struct{}),
+		ChannelsGaugeVec: prometheus.NewGaugeVec(
+			prometheus.GaugeOpts{
+				Namespace: "coinpaprika",
+				Subsystem: "telegram_bot",
+				Name:      "channel_names",
+				Help:      "Gauge for unique channels with their names",
+			},
+			[]string{"channel_name"},
+		),
+		ChannelsSet: make(map[int64]string),
 	}
 
 	prometheus.MustRegister(metrics.CommandsProcessed)
 	prometheus.MustRegister(metrics.MessagesHandled)
 	prometheus.MustRegister(metrics.ChannelsCount)
+	prometheus.MustRegister(metrics.ChannelsGaugeVec)
 
 	return metrics
 }
@@ -94,20 +105,24 @@ func setupLogging() {
 
 func handleUpdates(bot *telegram.Bot, updates tgbotapi.UpdatesChannel) {
 	for update := range updates {
-
 		if update.Message == nil {
 			log.Debug("Received non-message or non-command")
 			continue
 		}
 
-		if update.Message.IsCommand() == false && (len(update.Message.Text) == 0 || update.Message.Text[0] != '$') {
+		if !update.Message.IsCommand() && (len(update.Message.Text) == 0 || update.Message.Text[0] != '$') {
 			continue
 		}
 
 		metrics.MessagesHandled.Inc()
 
-		updateChannelsSet(update.Message.Chat.ID)
+		chatID := update.Message.Chat.ID
+		chatName := update.Message.Chat.Title
+		if chatName == "" {
+			chatName = fmt.Sprintf("PrivateChat_%d", chatID)
+		}
 
+		updateChannelsSet(chatID, chatName)
 		handleCommand(bot, update)
 	}
 }
@@ -135,13 +150,14 @@ func handleCommand(bot *telegram.Bot, update tgbotapi.Update) {
 	}
 }
 
-func updateChannelsSet(chatID int64) {
+func updateChannelsSet(chatID int64, chatName string) {
 	metrics.Mutex.Lock()
 	defer metrics.Mutex.Unlock()
 
 	if _, exists := metrics.ChannelsSet[chatID]; !exists {
-		metrics.ChannelsSet[chatID] = struct{}{}
+		metrics.ChannelsSet[chatID] = chatName
 		metrics.ChannelsCount.Set(float64(len(metrics.ChannelsSet)))
+		metrics.ChannelsGaugeVec.WithLabelValues(chatName).Set(1)
 	}
 }
 
