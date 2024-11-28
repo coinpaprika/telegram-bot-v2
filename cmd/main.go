@@ -15,81 +15,54 @@ import (
 )
 
 type BotMetrics struct {
-	CommandsProcessed  prometheus.Counter
-	MessagesHandled    prometheus.Counter
-	ChannelsCount      prometheus.Gauge
-	ChannelsGaugeVec   *prometheus.GaugeVec
-	CommandsPerChannel *prometheus.CounterVec
-	MessagesPerChannel *prometheus.CounterVec
-	ChannelsSet        map[int64]string
-	Mutex              sync.Mutex
+	CommandsProcessed *prometheus.CounterVec
+	MessagesHandled   *prometheus.CounterVec
+	ChannelsCount     prometheus.Gauge
+	ChannelsSet       map[int64]struct{}
+
+	Mutex sync.Mutex
 }
 
-var (
-	metrics = NewBotMetrics()
-)
+var metrics *BotMetrics
 
 func init() {
 	config.InitConfig()
 	setupLogging()
+	metrics = NewBotMetrics()
 }
 
 func NewBotMetrics() *BotMetrics {
 	metrics := &BotMetrics{
-		CommandsProcessed: prometheus.NewCounter(prometheus.CounterOpts{
-			Namespace: "coinpaprika",
-			Subsystem: "telegram_bot",
-			Name:      "commands_processed",
-			Help:      "The total number of processed commands",
-		}),
-		MessagesHandled: prometheus.NewCounter(prometheus.CounterOpts{
-			Namespace: "coinpaprika",
-			Subsystem: "telegram_bot",
-			Name:      "messages_handled",
-			Help:      "The total number of handled messages",
-		}),
+		CommandsProcessed: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: "coinpaprika",
+				Subsystem: "telegram_bot",
+				Name:      "commands_processed_total",
+				Help:      "The total number of processed commands by channel",
+			},
+			[]string{"channel_name"},
+		),
+		MessagesHandled: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: "coinpaprika",
+				Subsystem: "telegram_bot",
+				Name:      "messages_handled_total",
+				Help:      "The total number of handled messages by channel",
+			},
+			[]string{"channel_name"},
+		),
 		ChannelsCount: prometheus.NewGauge(prometheus.GaugeOpts{
 			Namespace: "coinpaprika",
 			Subsystem: "telegram_bot",
 			Name:      "channels_count",
-			Help:      "The current number of unique channels the bot is operating in",
+			Help:      "The total number of unique channels the bot is operating in",
 		}),
-		ChannelsGaugeVec: prometheus.NewGaugeVec(
-			prometheus.GaugeOpts{
-				Namespace: "coinpaprika",
-				Subsystem: "telegram_bot",
-				Name:      "channel_names",
-				Help:      "Gauge for unique channels with their names",
-			},
-			[]string{"channel_name"},
-		),
-		CommandsPerChannel: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: "coinpaprika",
-				Subsystem: "telegram_bot",
-				Name:      "commands_per_channel",
-				Help:      "The total number of commands processed per channel",
-			},
-			[]string{"channel_name"},
-		),
-		MessagesPerChannel: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: "coinpaprika",
-				Subsystem: "telegram_bot",
-				Name:      "messages_per_channel",
-				Help:      "The total number of messages handled per channel",
-			},
-			[]string{"channel_name"},
-		),
-		ChannelsSet: make(map[int64]string),
+		ChannelsSet: make(map[int64]struct{}), // Ensure the map is initialized
 	}
 
 	prometheus.MustRegister(metrics.CommandsProcessed)
 	prometheus.MustRegister(metrics.MessagesHandled)
 	prometheus.MustRegister(metrics.ChannelsCount)
-	prometheus.MustRegister(metrics.ChannelsGaugeVec)
-	prometheus.MustRegister(metrics.CommandsPerChannel)
-	prometheus.MustRegister(metrics.MessagesPerChannel)
 
 	return metrics
 }
@@ -127,26 +100,29 @@ func setupLogging() {
 
 func handleUpdates(bot *telegram.Bot, updates tgbotapi.UpdatesChannel) {
 	for update := range updates {
-		if !update.Message.IsCommand() && (len(update.Message.Text) == 0 || update.Message.Text[0] != '$') {
+
+		if update.Message == nil {
+			log.Debug("Received non-message or non-command")
 			continue
 		}
 
-		chatID := update.Message.Chat.ID
-		chatName := update.Message.Chat.Title
-		if chatName == "" {
-			chatName = fmt.Sprintf("PrivateChat_%d", chatID)
+		if update.Message.IsCommand() == false && (len(update.Message.Text) == 0 || update.Message.Text[0] != '$') {
+			continue
 		}
 
-		metrics.MessagesHandled.Inc()
-		metrics.MessagesPerChannel.WithLabelValues(chatName).Inc() // Increment per-channel messages
+		chatName := update.Message.Chat.Title
+		if chatName == "" {
+			chatName = fmt.Sprintf("PrivateChat_%d", update.Message.Chat.ID)
+		}
+		metrics.MessagesHandled.With(prometheus.Labels{"channel_name": chatName}).Inc()
 
-		updateChannelsSet(chatID, chatName)
+		updateChannelsSet(update.Message.Chat.ID)
 
-		handleCommand(bot, update, chatName)
+		handleCommand(bot, update)
 	}
 }
 
-func handleCommand(bot *telegram.Bot, update tgbotapi.Update, chatName string) {
+func handleCommand(bot *telegram.Bot, update tgbotapi.Update) {
 	defer func() {
 		if r := recover(); r != nil {
 			stackBuf := make([]byte, 1024)
@@ -165,19 +141,32 @@ func handleCommand(bot *telegram.Bot, update tgbotapi.Update, chatName string) {
 	if err != nil {
 		log.Errorf("Failed to send message: %v", err)
 	} else {
-		metrics.CommandsProcessed.Inc()
-		metrics.CommandsPerChannel.WithLabelValues(chatName).Inc() // Increment per-channel commands
+		chatName := update.Message.Chat.Title
+		if chatName == "" {
+			chatName = fmt.Sprintf("PrivateChat_%d", update.Message.Chat.ID)
+		}
+		metrics.CommandsProcessed.With(prometheus.Labels{"channel_name": chatName}).Inc()
 	}
 }
 
-func updateChannelsSet(chatID int64, chatName string) {
+func updateChannelsSet(chatID int64) {
+	if metrics == nil {
+		log.Error("Metrics is nil! Initialization error.")
+		return
+	}
+
 	metrics.Mutex.Lock()
 	defer metrics.Mutex.Unlock()
 
+	if metrics.ChannelsSet == nil {
+		log.Warn("ChannelsSet was nil, reinitializing")
+		metrics.ChannelsSet = make(map[int64]struct{})
+	}
+
 	if _, exists := metrics.ChannelsSet[chatID]; !exists {
-		metrics.ChannelsSet[chatID] = chatName
+		metrics.ChannelsSet[chatID] = struct{}{}
+		log.Infof("Added chatID %d to ChannelsSet. Total channels: %d", chatID, len(metrics.ChannelsSet))
 		metrics.ChannelsCount.Set(float64(len(metrics.ChannelsSet)))
-		metrics.ChannelsGaugeVec.WithLabelValues(chatName).Set(1)
 	}
 }
 
