@@ -15,49 +15,43 @@ import (
 )
 
 type BotMetrics struct {
-	CommandsProcessed *prometheus.CounterVec
-	MessagesHandled   *prometheus.CounterVec
+	CommandsProcessed prometheus.Counter
+	MessagesHandled   prometheus.Counter
 	ChannelsCount     prometheus.Gauge
 	ChannelsSet       map[int64]struct{}
-
-	Mutex sync.Mutex
+	Mutex             sync.Mutex
 }
 
-var metrics *BotMetrics
+var (
+	metrics = NewBotMetrics()
+)
 
 func init() {
 	config.InitConfig()
 	setupLogging()
-	metrics = NewBotMetrics()
 }
 
 func NewBotMetrics() *BotMetrics {
 	metrics := &BotMetrics{
-		CommandsProcessed: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: "coinpaprika",
-				Subsystem: "telegram_bot",
-				Name:      "commands_processed_total",
-				Help:      "The total number of processed commands by channel",
-			},
-			[]string{"channel_name"},
-		),
-		MessagesHandled: prometheus.NewCounterVec(
-			prometheus.CounterOpts{
-				Namespace: "coinpaprika",
-				Subsystem: "telegram_bot",
-				Name:      "messages_handled_total",
-				Help:      "The total number of handled messages by channel",
-			},
-			[]string{"channel_name"},
-		),
+		CommandsProcessed: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace: "coinpaprika",
+			Subsystem: "telegram_bot",
+			Name:      "commands_processed",
+			Help:      "The total number of processed commands",
+		}),
+		MessagesHandled: prometheus.NewCounter(prometheus.CounterOpts{
+			Namespace: "coinpaprika",
+			Subsystem: "telegram_bot",
+			Name:      "messages_handled",
+			Help:      "The total number of handled messages",
+		}),
 		ChannelsCount: prometheus.NewGauge(prometheus.GaugeOpts{
 			Namespace: "coinpaprika",
 			Subsystem: "telegram_bot",
 			Name:      "channels_count",
-			Help:      "The total number of unique channels the bot is operating in",
+			Help:      "The current number of unique channels the bot is operating in",
 		}),
-		ChannelsSet: make(map[int64]struct{}), // Ensure the map is initialized
+		ChannelsSet: make(map[int64]struct{}),
 	}
 
 	prometheus.MustRegister(metrics.CommandsProcessed)
@@ -110,11 +104,7 @@ func handleUpdates(bot *telegram.Bot, updates tgbotapi.UpdatesChannel) {
 			continue
 		}
 
-		chatName := update.Message.Chat.Title
-		if chatName == "" {
-			chatName = fmt.Sprintf("PrivateChat_%d", update.Message.Chat.ID)
-		}
-		metrics.MessagesHandled.With(prometheus.Labels{"channel_name": chatName}).Inc()
+		metrics.MessagesHandled.Inc()
 
 		updateChannelsSet(update.Message.Chat.ID)
 
@@ -141,31 +131,16 @@ func handleCommand(bot *telegram.Bot, update tgbotapi.Update) {
 	if err != nil {
 		log.Errorf("Failed to send message: %v", err)
 	} else {
-		chatName := update.Message.Chat.Title
-		if chatName == "" {
-			chatName = fmt.Sprintf("PrivateChat_%d", update.Message.Chat.ID)
-		}
-		metrics.CommandsProcessed.With(prometheus.Labels{"channel_name": chatName}).Inc()
+		metrics.CommandsProcessed.Inc()
 	}
 }
 
 func updateChannelsSet(chatID int64) {
-	if metrics == nil {
-		log.Error("Metrics is nil! Initialization error.")
-		return
-	}
-
 	metrics.Mutex.Lock()
 	defer metrics.Mutex.Unlock()
 
-	if metrics.ChannelsSet == nil {
-		log.Warn("ChannelsSet was nil, reinitializing")
-		metrics.ChannelsSet = make(map[int64]struct{})
-	}
-
 	if _, exists := metrics.ChannelsSet[chatID]; !exists {
 		metrics.ChannelsSet[chatID] = struct{}{}
-		log.Infof("Added chatID %d to ChannelsSet. Total channels: %d", chatID, len(metrics.ChannelsSet))
 		metrics.ChannelsCount.Set(float64(len(metrics.ChannelsSet)))
 	}
 }
