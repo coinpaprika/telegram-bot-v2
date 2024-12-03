@@ -15,12 +15,13 @@ import (
 )
 
 type BotMetrics struct {
-	CommandsProcessed prometheus.Counter
-	MessagesHandled   prometheus.Counter
-	ChannelsCount     prometheus.Gauge
-	ChannelNames      *prometheus.CounterVec
-	ChannelsSet       map[int64]string
-	Mutex             sync.Mutex
+	CommandsProcessed  prometheus.Counter
+	MessagesHandled    prometheus.Counter
+	ChannelsCount      prometheus.Gauge
+	ChannelNames       *prometheus.CounterVec
+	ChannelsSet        map[int64]string
+	MessagesPerChannel *prometheus.CounterVec
+	Mutex              sync.Mutex
 }
 
 var (
@@ -61,6 +62,15 @@ func NewBotMetrics() *BotMetrics {
 			},
 			[]string{"chat_id", "chat_name"},
 		),
+		MessagesPerChannel: prometheus.NewCounterVec(
+			prometheus.CounterOpts{
+				Namespace: "coinpaprika",
+				Subsystem: "telegram_bot",
+				Name:      "messages_per_channel",
+				Help:      "The total number of messages handled per channel",
+			},
+			[]string{"chat_id", "chat_name"},
+		),
 		ChannelsSet: make(map[int64]string),
 	}
 
@@ -68,6 +78,7 @@ func NewBotMetrics() *BotMetrics {
 	prometheus.MustRegister(metrics.MessagesHandled)
 	prometheus.MustRegister(metrics.ChannelsCount)
 	prometheus.MustRegister(metrics.ChannelNames)
+	prometheus.MustRegister(metrics.MessagesPerChannel)
 
 	return metrics
 }
@@ -123,6 +134,10 @@ func handleUpdates(bot *telegram.Bot, updates tgbotapi.UpdatesChannel) {
 		}
 
 		updateChannelsSet(chatID, chatName)
+
+		metrics.MessagesPerChannel.WithLabelValues(
+			fmt.Sprintf("%d", chatID), chatName,
+		).Inc()
 
 		handleCommand(bot, update)
 	}
