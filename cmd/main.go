@@ -6,11 +6,13 @@ import (
 	"coinpaprika-telegram-bot/internal/telegram"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+	"github.com/leonelquinteros/gotext"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	log "github.com/sirupsen/logrus"
 	"net/http"
 	"runtime"
+	"strings"
 	"sync"
 )
 
@@ -84,6 +86,8 @@ func NewBotMetrics() *BotMetrics {
 }
 
 func main() {
+	gotext.Configure("locales", strings.ToLower(config.GetString("lang")), "default")
+
 	bot, err := telegram.NewBot(telegram.BotConfig{
 		Token:          config.GetString("telegram_bot_token"),
 		Debug:          config.GetBool("debug"),

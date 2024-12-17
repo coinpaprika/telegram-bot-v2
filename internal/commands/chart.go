@@ -2,6 +2,7 @@ package commands
 
 import (
 	"coinpaprika-telegram-bot/internal/chart"
+	"coinpaprika-telegram-bot/lib/translation"
 	"fmt"
 	"github.com/coinpaprika/coinpaprika-api-go-client/v2/coinpaprika"
 	"github.com/pkg/errors"
@@ -47,9 +48,8 @@ func CommandChart(argument string) ([]byte, string, error) {
 	c, tickers, _ := GetHistoricalTickersByQuery(argument)
 
 	if len(tickers) <= 0 {
-		return nil, fmt.Sprintf(
-			"[%s \\(%s\\)](https://coinpaprika.com/coin/%s) coin is not actively traded and does not have current price \n"+
-				"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s) 🌶",
+		return nil, translation.Translate(
+			"Coin not traded",
 			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
@@ -60,8 +60,8 @@ func CommandChart(argument string) ([]byte, string, error) {
 
 	cacheSet(argument, chartData, *c.Name, 5*time.Minute)
 
-	return chartData, fmt.Sprintf(
-		"%s on [CoinPaprika](https://coinpaprika.com/coin/%s) 🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)",
+	return chartData, translation.Translate(
+		"Coin chart details",
 		*c.Symbol, *c.ID), nil
 }
 
@@ -84,32 +84,22 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 	}
 
 	if details == nil || details.Quotes == nil {
-		return nil, fmt.Sprintf(
-			"[%s \\(%s\\)](https://coinpaprika.com/coin/%s) coin is not actively traded and does not have current price \n"+
-				"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s) 🌶",
+		return nil, translation.Translate(
+			"Coin not traded",
 			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
 	usdQuote := details.Quotes["USD"]
 
-	caption := fmt.Sprintf(
-		"[%s](https://coinpaprika.com/coin/%s) \\(%s\\)\n"+
-			"Price:  *$%s*\n"+
-			"1h price change: *%s%%*\n"+
-			"24h price change: *%s%%*\n"+
-			"7d price change: *%s%%*\n"+
-			"Vol:  *$%s*\n"+
-			"MCap:  *$%s*\n"+
-			"Circ\\. Supply:  *%s %s*\n"+
-			"Total Supply:  *%s %s*\n\n"+
-			"[%s on CoinPaprika](https://coinpaprika.com/coin/%s) 🌶",
+	caption := translation.Translate(
+		"Ticker details",
 		escapeMarkdownV2(*details.Name),
 		*details.ID,
 		*details.Symbol,
 		formatPriceUS(*usdQuote.Price, true),
-		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange1h)),  // Escaping percentage
-		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange24h)), // Escaping percentage
-		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange7d)),  // Escaping percentage
+		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange1h)),
+		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange24h)),
+		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange7d)),
 		formatPriceRoundedUS(math.Round(*usdQuote.Volume24h)),
 		formatPriceRoundedUS(math.Round(*usdQuote.MarketCap)),
 		func() string {
@@ -134,7 +124,6 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 
 	return chartData, caption, nil
 }
-
 func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
 	var times []*time.Time
 	var prices []*float64
@@ -184,7 +173,7 @@ func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical) (
 			opt.Opacity = 35
 			opt.Title = chart.TitleOption{
 				Theme: nil,
-				Text:  fmt.Sprintf("%s 7 days price chart (%s) - CoinPaprika", *c.Name, *c.Symbol),
+				Text:  translation.Translate("7 days price chart", *c.Name, *c.Symbol),
 				Left:  "center", // Centered title
 				Top:   "20px",   // Adds more space from Y-axis
 			}

@@ -1,0 +1,34 @@
+msgid "Command help message"
+msgstr "Użyj jednej z poniższych komend:\n\n"
+        "/start lub /help pokazuje tę wiadomość\n"
+        "/o \\<symbol\\> sprawdź podsumowanie monety\n"
+        "/p \\<symbol\\> sprawdź cenę monety\n"
+        "/s \\<symbol\\> sprawdź ilość w obiegu\n"
+        "/v \\<symbol\\> sprawdź 24\\-godzinny wolumen\n"
+        "/c \\<symbol\\> wygeneruj wykres cenowy\n"
+        "$\\<symbol\\> sprawdź podsumowanie monety \\(np\\.\\, $btc\\)\n\n"
+        "/source pokazuje kod źródłowy tego bota\n"
+
+msgid "Coin not found"
+msgstr "Wygląda na to, że nie mamy monety, której szukasz\\. Spróbuj użyć innego symbolu monety"
+
+msgid "Coin not traded"
+msgstr "[%s (%s)](https://coinpaprika.com/coin/%s) moneta nie jest aktywnie handlowana i nie ma aktualnej ceny\\.\nWięcej szczegółów znajdziesz na [CoinPaprika](https://coinpaprika.com/coin/%s)🌶"
+
+msgid "Coin price details"
+msgstr "*Cena %s:*\n\n▫️`%s` *USD*\n▫️`%s` *BTC*\n\n%s na [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Skorzystaj z tego [Bota](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+
+msgid "Coin volume details"
+msgstr "*Wolumen 24h %s:*\n\n▫️`%s` *USD*\n\n%s na [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Skorzystaj z tego [Bota](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+
+msgid "Coin supply details"
+msgstr "*Podaż w obiegu %s:*\n\n▫️`%s`\n\n%s na [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Skorzystaj z tego [Bota](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+
+msgid "Coin chart details"
+msgstr "%s na [CoinPaprika](https://coinpaprika.com/coin/%s) 🌶/ Skorzystaj z tego [Bota](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+
+msgid "Ticker details"
+msgstr "[%s](https://coinpaprika.com/coin/%s) \\(%s\\)\nCena:  *\\$%s*\nZmiana ceny w 1h: *%s%%*\nZmiana ceny w 24h: *%s%%*\nZmiana ceny w 7d: *%s%%*\nWolumen:  *\\$%s*\nKapitalizacja rynkowa:  *\\$%s*\nPodaż w obiegu:  *%s %s*\nCałkowita podaż:  *%s %s*\n\n[%s na CoinPaprika](https://coinpaprika.com/coin/%s) 🌶"
+
+msgid "7 days price chart"
+msgstr "Wykres cenowy %s za ostatnie 7 dni (%s) - CoinPaprika"

@@ -1,7 +1,7 @@
 package commands
 
 import (
-	"fmt"
+	"coinpaprika-telegram-bot/lib/translation"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
 )
@@ -15,14 +15,12 @@ func CommandSupply(argument string) (string, error) {
 	}
 
 	if ticker == nil || ticker.Name == nil || ticker.ID == nil || ticker.CirculatingSupply == nil {
-		return fmt.Sprintf(
-			"[%s \\(%s\\)](https://coinpaprika.com/coin/%s) coin is not actively traded and does not have current price \n"+
-				"For more details visit [CoinPaprika](https://coinpaprika.com/coin/%s)🌶",
+		return translation.Translate(
+			"Coin not traded",
 			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
-	return fmt.Sprintf(
-		"*%s circulating supply:*\n\n▫️`%s`\n\n"+
-			"%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)",
+	return translation.Translate(
+		"Coin supply details",
 		*ticker.Name, formatSupplyUS(*ticker.CirculatingSupply), *ticker.Symbol, *ticker.ID), nil
 }

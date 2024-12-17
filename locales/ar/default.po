@@ -1,0 +1,34 @@
+msgid "Command help message"
+msgstr "يرجى استخدام أحد الأوامر التالية:\n\n"
+        "/start أو /help لعرض هذه الرسالة\n"
+        "/o \\<رمز\\> عرض نظرة عامة على العملة\n"
+        "/p \\<رمز\\> عرض سعر العملة\n"
+        "/s \\<رمز\\> عرض العرض المتداول\n"
+        "/v \\<رمز\\> عرض حجم التداول خلال 24 ساعة\n"
+        "/c \\<رمز\\> عرض مخطط السعر\n"
+        "$\\<رمز\\> عرض نظرة عامة على العملة \\(مثل: $btc\\)\n\n"
+        "/source عرض كود المصدر الخاص بهذا البوت\n"
+
+msgid "Coin not found"
+msgstr "يبدو أننا لا نمتلك العملة التي تبحث عنها\\. الرجاء المحاولة باستخدام رمز عملة آخر"
+
+msgid "Coin not traded"
+msgstr "[%s (%s)](https://coinpaprika.com/coin/%s) العملة غير متداولة حاليًا ولا يوجد لها سعر حالي.\nلمزيد من التفاصيل، قم بزيارة [CoinPaprika](https://coinpaprika.com/coin/%s)🌶"
+
+msgid "Coin price details"
+msgstr "*%s السعر:*\n\n▫️`%s` *دولار أمريكي*\n▫️`%s` *بيتكوين*\n\n%s على [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ استخدم هذا [البوت](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+
+msgid "Coin volume details"
+msgstr "*حجم تداول %s خلال 24 ساعة:*\n\n▫️`%s` *دولار أمريكي*\n\n%s على [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ استخدم هذا [البوت](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+
+msgid "Coin supply details"
+msgstr "*العرض المتداول لـ %s:*\n\n▫️`%s`\n\n%s على [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ استخدم هذا [البوت](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+
+msgid "Coin chart details"
+msgstr "%s على [CoinPaprika](https://coinpaprika.com/coin/%s) 🌶/ استخدم هذا [البوت](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+
+msgid "Ticker details"
+msgstr "[%s](https://coinpaprika.com/coin/%s) \\(%s\\)\nالسعر:  *\\$%s*\nتغير السعر خلال ساعة: *%s%%*\nتغير السعر خلال 24 ساعة: *%s%%*\nتغير السعر خلال 7 أيام: *%s%%*\nالحجم:  *\\$%s*\nالقيمة السوقية:  *\\$%s*\nالعرض المتداول:  *%s %s*\nإجمالي العرض:  *%s %s*\n\n[%s على CoinPaprika](https://coinpaprika.com/coin/%s) 🌶"
+
+msgid "7 days price chart"
+msgstr "مخطط سعر %s لمدة 7 أيام (%s) - CoinPaprika"

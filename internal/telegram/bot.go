@@ -2,7 +2,7 @@ package telegram
 
 import (
 	"coinpaprika-telegram-bot/internal/commands"
-	"fmt"
+	"coinpaprika-telegram-bot/lib/translation"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -43,15 +43,7 @@ func (b *Bot) SendMessage(m Message) error {
 }
 
 func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
-	text := fmt.Sprintf("Please use one of the commands:\n\n" +
-		"/start or /help \tshow this message\n" +
-		"/o \\<symbol\\> \t\tcheck the coin overview\n" +
-		"/p \\<symbol\\> \t\tcheck the coin price\n" +
-		"/s \\<symbol\\> \t\tcheck the circulating supply\n" +
-		"/v \\<symbol\\> \t\tcheck the 24h volume\n" +
-		"/c \\<symbol\\> \t\tget the price chart\n" +
-		"$\\<symbol\\> \t\tcheck the coin overview \\(e\\.g\\., $btc\\)\n\n" +
-		"/source \t\tshow source code of this bot\n")
+	text := translation.Translate("Command help message")
 
 	log.Debugf("received command: %s", u.Message.Command())
 
@@ -63,23 +55,23 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 		text = "https://github\\.com/coinpaprika/telegram\\-bot\\-v2"
 	case "p":
 		if text, err = commands.CommandPrice(u.Message.CommandArguments()); err != nil {
-			text = "Looks like we don't have the coin you are looking for\\. Please try another coin symbol"
+			text = translation.Translate("Coin not found")
 			log.Error(err)
 		}
 	case "s":
 		if text, err = commands.CommandSupply(u.Message.CommandArguments()); err != nil {
-			text = "Looks like we don't have the coin you are looking for\\. Please try another coin symbol"
+			text = translation.Translate("Coin not found")
 			log.Error(err)
 		}
 	case "v":
 		if text, err = commands.CommandVolume(u.Message.CommandArguments()); err != nil {
-			text = "Looks like we don't have the coin you are looking for\\. Please try another coin symbol"
+			text = translation.Translate("Coin not found")
 			log.Error(err)
 		}
 	case "c":
 		chartData, caption, err := commands.CommandChart(u.Message.CommandArguments())
 		if err != nil {
-			text = "Looks like we don't have the coin you are looking for\\. Please try another coin symbol"
+			text = translation.Translate("Coin not found")
 			log.Error(err)
 		} else {
 			if chartData != nil {
@@ -102,7 +94,7 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 	case "o":
 		chartData, caption, err := commands.CommandChartWithTicker(u.Message.CommandArguments())
 		if err != nil {
-			text = "Looks like we don't have the coin you are looking for\\. Please try another coin symbol"
+			text = translation.Translate("Coin not found")
 			log.Error(err)
 		} else {
 			if chartData != nil {
@@ -128,7 +120,7 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 		coinSymbol := u.Message.Text[1:]
 		chartData, caption, err := commands.CommandChartWithTicker(coinSymbol)
 		if err != nil {
-			text = "Looks like we don't have the coin you are looking for\\. Please try another coin symbol"
+			text = translation.Translate("Coin not found")
 			log.Error(err)
 		} else {
 			if chartData != nil {

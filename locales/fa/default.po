@@ -1,0 +1,34 @@
+msgid "Command help message"
+msgstr "لطفاً یکی از دستورات زیر را استفاده کنید:\n\n"
+        "/start یا /help نمایش این پیام\n"
+        "/o \\<نماد\\> نمای کلی ارز را مشاهده کنید\n"
+        "/p \\<نماد\\> قیمت ارز را بررسی کنید\n"
+        "/s \\<نماد\\> عرضه در گردش را بررسی کنید\n"
+        "/v \\<نماد\\> حجم معاملات 24 ساعته را بررسی کنید\n"
+        "/c \\<نماد\\> نمودار قیمت را مشاهده کنید\n"
+        "$\\<نماد\\> نمای کلی ارز را مشاهده کنید \\(مانند: $btc\\)\n\n"
+        "/source نمایش کد منبع این ربات\n"
+
+msgid "Coin not found"
+msgstr "به نظر می‌رسد که ما ارزی که به دنبال آن هستید را نداریم\\. لطفاً یک نماد ارز دیگر را امتحان کنید"
+
+msgid "Coin not traded"
+msgstr "[%s (%s)](https://coinpaprika.com/coin/%s) این ارز در حال حاضر معامله نمی‌شود و قیمت فعلی ندارد.\nبرای اطلاعات بیشتر به [CoinPaprika](https://coinpaprika.com/coin/%s)🌶 مراجعه کنید."
+
+msgid "Coin price details"
+msgstr "*قیمت %s:*\n\n▫️`%s` *دلار*\n▫️`%s` *بیت‌کوین*\n\n%s در [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ از این [ربات](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md) استفاده کنید"
+
+msgid "Coin volume details"
+msgstr "*حجم معاملات 24 ساعته %s:*\n\n▫️`%s` *دلار*\n\n%s در [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ از این [ربات](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md) استفاده کنید"
+
+msgid "Coin supply details"
+msgstr "*عرضه در گردش %s:*\n\n▫️`%s`\n\n%s در [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ از این [ربات](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md) استفاده کنید"
+
+msgid "Coin chart details"
+msgstr "%s در [CoinPaprika](https://coinpaprika.com/coin/%s) 🌶/ از این [ربات](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md) استفاده کنید"
+
+msgid "Ticker details"
+msgstr "[%s](https://coinpaprika.com/coin/%s) \\(%s\\)\nقیمت:  *\\$%s*\nتغییر قیمت در 1 ساعت: *%s%%*\nتغییر قیمت در 24 ساعت: *%s%%*\nتغییر قیمت در 7 روز: *%s%%*\nحجم معاملات:  *\\$%s*\nارزش بازار:  *\\$%s*\nعرضه در گردش:  *%s %s*\nکل عرضه:  *%s %s*\n\n[%s در CoinPaprika](https://coinpaprika.com/coin/%s) 🌶"
+
+msgid "7 days price chart"
+msgstr "نمودار قیمت %s در 7 روز (%s) - CoinPaprika"

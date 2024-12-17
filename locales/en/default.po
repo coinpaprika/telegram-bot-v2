@@ -1,0 +1,34 @@
+msgid "Command help message"
+msgstr "Please use one of the commands:\n\n"
+        "/start or /help show this message\n"
+        "/o \\<symbol\\> check the coin overview\n"
+        "/p \\<symbol\\> check the coin price\n"
+        "/s \\<symbol\\> check the circulating supply\n"
+        "/v \\<symbol\\> check the 24h volume\n"
+        "/c \\<symbol\\> get the price chart\n"
+        "$\\<symbol\\> check the coin overview \\(e\\.g\\., $btc\\)\n\n"
+        "/source show source code of this bot\n"
+
+msgid "Coin not found"
+msgstr "Looks like we don\\'t have the coin you are looking for\\. Please try another coin symbol"
+
+msgid "Coin not traded"
+msgstr "[%s (%s)](https://coinpaprika.com/coin/%s) coin is not actively traded and does not have current price.\nFor more details visit [CoinPaprika](https://coinpaprika.com/coin/%s)🌶"
+
+msgid "Coin price details"
+msgstr "*%s price:*\n\n▫️`%s` *USD*\n▫️`%s` *BTC*\n\n%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+
+msgid "Coin volume details"
+msgstr "*%s 24h volume:*\n\n▫️`%s` *USD*\n\n%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+
+msgid "Coin supply details"
+msgstr "*%s circulating supply:*\n\n▫️`%s`\n\n%s on [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+
+msgid "Coin chart details"
+msgstr "%s on [CoinPaprika](https://coinpaprika.com/coin/%s) 🌶/ Use this [Bot](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+
+msgid "Ticker details"
+msgstr "[%s](https://coinpaprika.com/coin/%s) \\(%s\\)\nPrice:  *\\$%s*\n1h price change: *%s%%*\n24h price change: *%s%%*\n7d price change: *%s%%*\nVol:  *\\$%s*\nMCap:  *\\$%s*\nCirc\\. Supply:  *%s %s*\nTotal Supply:  *%s %s*\n\n[%s on CoinPaprika](https://coinpaprika.com/coin/%s) 🌶"
+
+msgid "7 days price chart"
+msgstr "%s 7 days price chart (%s) - CoinPaprika"

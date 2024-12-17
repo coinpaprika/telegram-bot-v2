@@ -15,9 +15,11 @@ func InitConfig() {
 		viper.BindEnv("telegram_bot_token", "TELEGRAM_BOT_TOKEN")
 		viper.BindEnv("api_pro_key", "API_PRO_KEY")
 		viper.BindEnv("debug", "DEBUG")
+		viper.BindEnv("lang", "LANG")
 
 		viper.SetDefault("metrics_port", 9090)
 		viper.SetDefault("debug", false)
+		viper.SetDefault("lang", "en")
 	})
 }
 

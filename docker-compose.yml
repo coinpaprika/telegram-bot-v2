@@ -16,6 +16,7 @@ services:
       - API_PRO_KEY=${API_PRO_KEY}
       - METRICS_PORT=${METRICS_PORT}
       - DEBUG=${DEBUG}
+      - LANG=${LANG}
     ports:
       - "127.0.0.1:${METRICS_PORT}:${METRICS_PORT}"
 
