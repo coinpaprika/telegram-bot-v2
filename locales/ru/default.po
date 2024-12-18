@@ -13,22 +13,22 @@ msgid "Coin not found"
 msgstr "Похоже, у нас нет монеты, которую вы ищете\\. Пожалуйста, попробуйте другой символ монеты"
 
 msgid "Coin not traded"
-msgstr "[%s (%s)](https://coinpaprika.com/coin/%s) монета в настоящее время не торгуется и не имеет текущей цены.\nДля получения дополнительной информации посетите [CoinPaprika](https://coinpaprika.com/coin/%s)🌶"
+msgstr "[%s (%s)](https://coinpaprika.com/valjuta/%s) монета в настоящее время не торгуется и не имеет текущей цены.\nДля получения дополнительной информации посетите [CoinPaprika](https://coinpaprika.com/valjuta/%s)🌶"
 
 msgid "Coin price details"
-msgstr "*Цена %s:*\n\n▫️`%s` *USD*\n▫️`%s` *BTC*\n\n%s на [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Используйте этого [бота](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+msgstr "*Цена %s:*\n\n▫️`%s` *USD*\n▫️`%s` *BTC*\n\n%s на [CoinPaprika](https://coinpaprika.com/valjuta/%s)🌶/ Используйте этого [бота](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
 
 msgid "Coin volume details"
-msgstr "*Объем торгов %s за 24 часа:*\n\n▫️`%s` *USD*\n\n%s на [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Используйте этого [бота](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+msgstr "*Объем торгов %s за 24 часа:*\n\n▫️`%s` *USD*\n\n%s на [CoinPaprika](https://coinpaprika.com/valjuta/%s)🌶/ Используйте этого [бота](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
 
 msgid "Coin supply details"
-msgstr "*Объем циркуляции %s:*\n\n▫️`%s`\n\n%s на [CoinPaprika](https://coinpaprika.com/coin/%s)🌶/ Используйте этого [бота](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+msgstr "*Объем циркуляции %s:*\n\n▫️`%s`\n\n%s на [CoinPaprika](https://coinpaprika.com/valjuta/%s)🌶/ Используйте этого [бота](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
 
 msgid "Coin chart details"
-msgstr "%s на [CoinPaprika](https://coinpaprika.com/coin/%s) 🌶/ Используйте этого [бота](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
+msgstr "%s на [CoinPaprika](https://coinpaprika.com/valjuta/%s) 🌶/ Используйте этого [бота](https://github.com/coinpaprika/telegram-bot-v2/blob/main/README.md)"
 
 msgid "Ticker details"
-msgstr "[%s](https://coinpaprika.com/coin/%s) \\(%s\\)\nЦена:  *\\$%s*\nИзменение за 1ч: *%s%%*\nИзменение за 24ч: *%s%%*\nИзменение за 7д: *%s%%*\nОбъем:  *\\$%s*\nРыночная капитализация:  *\\$%s*\nЦиркулирующий объем:  *%s %s*\nОбщий объем:  *%s %s*\n\n[%s на CoinPaprika](https://coinpaprika.com/coin/%s) 🌶"
+msgstr "[%s](https://coinpaprika.com/valjuta/%s) \\(%s\\)\nЦена:  *\\$%s*\nИзменение за 1ч: *%s%%*\nИзменение за 24ч: *%s%%*\nИзменение за 7д: *%s%%*\nОбъем:  *\\$%s*\nРыночная капитализация:  *\\$%s*\nЦиркулирующий объем:  *%s %s*\nОбщий объем:  *%s %s*\n\n[%s на CoinPaprika](https://coinpaprika.com/valjuta/%s) 🌶"
 
 msgid "7 days price chart"
 msgstr "График цен %s за 7 дней (%s) - CoinPaprika"
