@@ -67,8 +67,8 @@ func CommandChart(argument string) ([]byte, string, error) {
 
 func CommandChartWithTicker(argument string) ([]byte, string, error) {
 	log.Printf("processing command ticker with argument :%s", argument)
-
-	if cachedItem, found := cacheGet(argument); found {
+	cacheKey := fmt.Sprintf("%s-%s", argument, "ticker")
+	if cachedItem, found := cacheGet(cacheKey); found {
 		log.Printf("returning cached result for %s", argument)
 		return cachedItem.ChartData, cachedItem.Caption, nil
 	}
@@ -120,7 +120,7 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 		return nil, "", err
 	}
 
-	cacheSet(argument, chartData, caption, 5*time.Minute)
+	cacheSet(cacheKey, chartData, caption, 5*time.Minute)
 
 	return chartData, caption, nil
 }
