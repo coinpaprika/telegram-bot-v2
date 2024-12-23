@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"strings"
 )
 
 // NewBot creates new telegram bot
@@ -117,7 +118,7 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 	}
 
 	if u.Message.Text != "" && u.Message.Text[0] == '$' {
-		coinSymbol := u.Message.Text[1:]
+		coinSymbol := strings.TrimSpace(u.Message.Text[1:])
 		chartData, caption, err := commands.CommandChartWithTicker(coinSymbol)
 		if err != nil {
 			text = translation.Translate("Coin not found")
