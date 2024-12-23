@@ -4,12 +4,13 @@ import (
 	"coinpaprika-telegram-bot/lib/translation"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"strings"
 )
 
 func CommandSupply(argument string) (string, error) {
 	log.Debugf("processing command /s with argument :%s", argument)
 
-	c, ticker, err := GetTickerByQuery(argument)
+	c, ticker, err := GetTickerByQuery(strings.TrimSpace(argument))
 	if err != nil {
 		return "", errors.Wrap(err, "command /s")
 	}
