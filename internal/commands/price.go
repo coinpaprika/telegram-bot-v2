@@ -31,5 +31,5 @@ func CommandPrice(argument string) (string, error) {
 
 	return translation.Translate(
 		"Coin price details",
-		*ticker.Name, formatPriceUS(*priceUSD, true), formatPriceUS(*priceBTC, true), *ticker.Symbol, *ticker.ID), nil
+		escapeMarkdownV2(*ticker.Name), formatPriceUS(*priceUSD, true), formatPriceUS(*priceBTC, true), *ticker.Symbol, *ticker.ID), nil
 }

@@ -23,5 +23,5 @@ func CommandSupply(argument string) (string, error) {
 
 	return translation.Translate(
 		"Coin supply details",
-		*ticker.Name, formatSupplyUS(*ticker.CirculatingSupply), *ticker.Symbol, *ticker.ID), nil
+		escapeMarkdownV2(*ticker.Name), formatSupplyUS(*ticker.CirculatingSupply), *ticker.Symbol, *ticker.ID), nil
 }

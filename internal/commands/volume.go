@@ -30,5 +30,5 @@ func CommandVolume(argument string) (string, error) {
 
 	return translation.Translate(
 		"Coin volume details",
-		*ticker.Name, formatPriceUS(*volumeUSD, true), *ticker.Symbol, *ticker.ID), nil
+		escapeMarkdownV2(*ticker.Name), formatPriceUS(*volumeUSD, true), *ticker.Symbol, *ticker.ID), nil
 }
