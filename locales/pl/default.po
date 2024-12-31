@@ -30,5 +30,14 @@ msgstr "%s na [CoinPaprika](https://coinpaprika.com/coin/%s) 🌶/ Skorzystaj z 
 msgid "Ticker details"
 msgstr "[%s](https://coinpaprika.com/coin/%s) \\(%s\\)\nCena:  *\\$%s*\nZmiana ceny w 1h: *%s%%*\nZmiana ceny w 24h: *%s%%*\nZmiana ceny w 7d: *%s%%*\nWolumen:  *\\$%s*\nKapitalizacja rynkowa:  *\\$%s*\nPodaż w obiegu:  *%s %s*\nCałkowita podaż:  *%s %s*\n\n[%s na CoinPaprika](https://coinpaprika.com/coin/%s) 🌶"
 
-msgid "7 days price chart"
-msgstr "Wykres cenowy %s za ostatnie 7 dni (%s) - CoinPaprika"
+msgid "price chart 4h"
+msgstr "%s Wykres cen z ostatnich 4 godzin (%s) - CoinPaprika"
+
+msgid "price chart 12h"
+msgstr "%s Wykres cen z ostatnich 12 godzin (%s) - CoinPaprika"
+
+msgid "price chart 24h"
+msgstr "%s Wykres cen z ostatnich 24 godzin (%s) - CoinPaprika"
+
+msgid "price chart 7d"
+msgstr "%s Wykres cen z ostatnich 7 dni (%s) - CoinPaprika"

@@ -5,12 +5,20 @@ import (
 	"coinpaprika-telegram-bot/lib/translation"
 	"fmt"
 	"github.com/coinpaprika/coinpaprika-api-go-client/v2/coinpaprika"
+	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"github.com/wcharczuk/go-chart/v2/drawing"
 	"log"
 	"math"
 	"time"
 )
+
+var ValidTimeRanges = map[string]time.Time{
+	"4h":  time.Now().Add(-4 * time.Hour).UTC(),
+	"12h": time.Now().Add(-12 * time.Hour).UTC(),
+	"24h": time.Now().Add(-24 * time.Hour).UTC(),
+	"7d":  time.Now().Add(-24 * 7 * time.Hour).UTC(),
+}
 
 func init() {
 	darkGrayBlueSeriesColors := []drawing.Color{
@@ -37,15 +45,16 @@ func init() {
 }
 
 // CommandChart generates the chart and returns the file path.
-func CommandChart(argument string) ([]byte, string, error) {
+func CommandChart(argument, timeRange string) ([]byte, string, error) {
 	log.Printf("processing command /c with argument :%s", argument)
-
-	if cachedItem, found := cacheGet(argument); found {
+	t := getTimeRange(timeRange)
+	i := getInterval(timeRange)
+	if cachedItem, found := cacheGet(fmt.Sprintf("%s-%s", argument, t.String())); found {
 		log.Printf("returning cached result for %s", argument)
 		return cachedItem.ChartData, cachedItem.Caption, nil
 	}
 
-	c, tickers, _ := GetHistoricalTickersByQuery(argument)
+	c, tickers, _ := GetHistoricalTickersByQuery(argument, t, i)
 
 	if len(tickers) <= 0 {
 		return nil, translation.Translate(
@@ -53,7 +62,7 @@ func CommandChart(argument string) ([]byte, string, error) {
 			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
-	chartData, err := renderChart(c, tickers)
+	chartData, err := renderChart(c, tickers, timeRange)
 	if err != nil {
 		return nil, "", err
 	}
@@ -65,18 +74,21 @@ func CommandChart(argument string) ([]byte, string, error) {
 		*c.Symbol, *c.ID), nil
 }
 
-func CommandChartWithTicker(argument string) ([]byte, string, error) {
+func CommandChartWithTicker(argument, timeRange string) ([]byte, string, error) {
 	log.Printf("processing command ticker with argument :%s", argument)
-	cacheKey := fmt.Sprintf("%s-%s", argument, "ticker")
+	t := getTimeRange(timeRange)
+	i := getInterval(timeRange)
+	cacheKey := fmt.Sprintf("%s-%s-%s", argument, "ticker", t.String())
 	if cachedItem, found := cacheGet(cacheKey); found {
 		log.Printf("returning cached result for %s", argument)
 		return cachedItem.ChartData, cachedItem.Caption, nil
 	}
 
-	c, tickers, err := GetHistoricalTickersByQuery(argument)
+	c, tickers, err := GetHistoricalTickersByQuery(argument, t, i)
 	if err != nil {
 		return nil, "", err
 	}
+	spew.Dump(tickers)
 
 	_, details, err := GetTicker(c)
 	if err != nil {
@@ -115,7 +127,7 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 		*details.ID,
 	)
 
-	chartData, err := renderChart(c, tickers)
+	chartData, err := renderChart(c, tickers, timeRange)
 	if err != nil {
 		return nil, "", err
 	}
@@ -124,13 +136,29 @@ func CommandChartWithTicker(argument string) ([]byte, string, error) {
 
 	return chartData, caption, nil
 }
-func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical) ([]byte, error) {
+
+func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical, timeRange string) ([]byte, error) {
+	if len(tickers) == 0 {
+		return nil, errors.New("no tickers available for rendering")
+	}
+
 	var times []*time.Time
 	var prices []*float64
 
 	for _, t := range tickers {
+		if t.Timestamp == nil || t.Price == nil {
+			continue
+		}
 		times = append(times, t.Timestamp)
 		prices = append(prices, t.Price)
+	}
+
+	if len(times) == 0 || len(prices) == 0 {
+		return nil, errors.New("insufficient valid data for rendering chart")
+	}
+
+	if len(prices) < 2 {
+		return nil, errors.New("not enough data points for rendering chart")
 	}
 
 	priceValues := [][]float64{{}}
@@ -138,28 +166,51 @@ func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical) (
 		priceValues[0] = append(priceValues[0], *price)
 	}
 
+	// Adjust X-axis labels based on timeRange
 	xLabels := []string{}
-	var lastDay string
+	var lastLabel string
 	for _, t := range times {
-		currentDay := (*t).Format("02-Jan")
-		if currentDay != lastDay {
-			xLabels = append(xLabels, currentDay)
-			lastDay = currentDay
+		var currentLabel string
+		if timeRange == "4h" || timeRange == "12h" || timeRange == "24h" {
+			currentLabel = (*t).Format("15:04") // Show time for shorter ranges
+		} else {
+			currentLabel = (*t).Format("02-Jan") // Show date for weekly range
+		}
+
+		if currentLabel != lastLabel {
+			xLabels = append(xLabels, currentLabel)
+			lastLabel = currentLabel
 		} else {
 			xLabels = append(xLabels, "-")
 		}
 	}
 
+	// Ensure alignment between xLabels and priceValues
 	if len(xLabels) != len(priceValues[0]) {
 		return nil, errors.New("mismatch between number of labels and data points")
 	}
 
 	minPrice, maxPrice := getMinMax(prices)
+	if minPrice == maxPrice {
+		maxPrice += 1 // Prevent division by zero
+	}
+
 	padding := (maxPrice - minPrice) * 0.1
 	minValue := minPrice - padding
 	maxValue := maxPrice + padding
 
-	// Render chart with the specified options
+	titleKey := ""
+	switch timeRange {
+	case "4h":
+		titleKey = "price chart 4h"
+	case "12h":
+		titleKey = "price chart 12h"
+	case "24h":
+		titleKey = "price chart 24h"
+	default:
+		titleKey = "price chart 7d"
+	}
+
 	p, err := chart.LineRender(
 		priceValues,
 		chart.TitleTextOptionFunc("CoinPaprika"),
@@ -172,25 +223,20 @@ func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical) (
 			opt.SymbolShow = BoolPtr(true)
 			opt.Opacity = 35
 			opt.Title = chart.TitleOption{
-				Theme: nil,
-				Text:  translation.Translate("7 days price chart", *c.Name, *c.Symbol),
-				Left:  "center", // Centered title
-				Top:   "20px",   // Adds more space from Y-axis
+				Text: translation.Translate(titleKey, *c.Name, *c.Symbol),
+				Left: "center",
+				Top:  "20px",
 			}
-
 			opt.ValueFormatter = func(v float64) string {
 				return formatPriceUS(v, false)
 			}
-
 			opt.XAxis = chart.XAxisOption{
 				Data:        xLabels,
 				BoundaryGap: BoolPtr(false),
 				FontSize:    12,
 				FontColor:   chart.Color{R: 200, G: 200, B: 200, A: 255},
 				Show:        BoolPtr(true),
-				StrokeColor: chart.Color{R: 0, G: 0, B: 0, A: 255}, // Set a visible stroke color for X-axis
 			}
-
 			opt.YAxisOptions = []chart.YAxisOption{
 				{
 					Min:           &minValue,
@@ -198,7 +244,7 @@ func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical) (
 					FontSize:      12,
 					FontColor:     chart.Color{R: 200, G: 200, B: 200, A: 255},
 					Position:      "left",
-					SplitLineShow: BoolPtr(true), // Horizontal lines across chart
+					SplitLineShow: BoolPtr(true),
 					Show:          BoolPtr(true),
 				},
 			}
@@ -206,12 +252,12 @@ func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical) (
 	)
 
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to render chart")
 	}
 
 	buf, err := p.Bytes()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "failed to generate chart bytes")
 	}
 
 	return buf, nil
@@ -224,6 +270,9 @@ func getMinMax(prices []*float64) (min, max float64) {
 
 	min, max = *prices[0], *prices[0]
 	for _, price := range prices {
+		if price == nil {
+			continue
+		}
 		if *price < min {
 			min = *price
 		}
@@ -231,20 +280,43 @@ func getMinMax(prices []*float64) (min, max float64) {
 			max = *price
 		}
 	}
-	return min, max
-}
 
-func getPriceFormat(_, maxPrice float64) string {
-	if maxPrice >= 1000 {
-		return "%.0f"
-	} else if maxPrice >= 1 {
-		return "%.2f"
-	} else if maxPrice >= 0.01 {
-		return "%.4f"
+	// Prevent division by zero in range calculations
+	if min == max {
+		max += 1
 	}
-	return "$%.8f"
+
+	return min, max
 }
 
 func BoolPtr(b bool) *bool {
 	return &b
+}
+
+func getTimeRange(timeRange string) time.Time {
+	if t, valid := ValidTimeRanges[timeRange]; valid {
+		return t
+	}
+	log.Printf("Invalid time range: %s. Defaulting to 7d.", timeRange)
+
+	return ValidTimeRanges["7d"]
+}
+
+func getInterval(timeRange string) string {
+	var interval string
+
+	switch timeRange {
+	case "4h":
+		interval = "30m"
+	case "12h":
+		interval = "1h"
+	case "24h":
+		interval = "2h"
+	case "7d":
+		interval = "3h"
+	default:
+		interval = "3h"
+	}
+
+	return interval
 }

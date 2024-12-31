@@ -6,6 +6,7 @@ import (
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
+	"regexp"
 	"strings"
 )
 
@@ -43,9 +44,25 @@ func (b *Bot) SendMessage(m Message) error {
 	return errors.Wrapf(err, "could not send message: %v", m)
 }
 
+func ParseArguments(args string) (string, string) {
+	// Use regex to separate coin symbol and time (e.g., "btc 4h")
+	re := regexp.MustCompile(`^(\S+)\s*(\d+[hHdD]*)?$`)
+	matches := re.FindStringSubmatch(args)
+
+	if len(matches) >= 2 {
+		coin := matches[1]
+		time := ""
+		if len(matches) == 3 {
+			time = matches[2]
+		}
+		return coin, time
+	}
+	return args, ""
+}
+
+// HandleUpdate processes Telegram updates
 func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 	text := translation.Translate("Command help message")
-
 	log.Debugf("received command: %s", u.Message.Command())
 
 	var err error = nil
@@ -70,30 +87,8 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 			log.Error(err)
 		}
 	case "c":
-		chartData, caption, err := commands.CommandChart(u.Message.CommandArguments())
-		if err != nil {
-			text = translation.Translate("Coin not found")
-			log.Error(err)
-		} else {
-			if chartData != nil {
-				photo := tgbotapi.NewPhoto(u.Message.Chat.ID, tgbotapi.FileBytes{
-					Name:  "chart.png",
-					Bytes: chartData,
-				})
-				photo.Caption = caption
-				photo.ParseMode = "MarkdownV2"
-				photo.ReplyToMessageID = u.Message.MessageID
-				_, err = b.Bot.Send(photo)
-				if err != nil {
-					log.Error("error sending chart:", err)
-				}
-				return ""
-			} else {
-				text = caption
-			}
-		}
-	case "o":
-		chartData, caption, err := commands.CommandChartWithTicker(u.Message.CommandArguments())
+		coin, timeRange := ParseArguments(u.Message.CommandArguments())
+		chartData, caption, err := commands.CommandChart(coin, timeRange)
 		if err != nil {
 			text = translation.Translate("Coin not found")
 			log.Error(err)
@@ -117,9 +112,12 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 		}
 	}
 
+	// Handle $ commands
 	if u.Message.Text != "" && u.Message.Text[0] == '$' {
-		coinSymbol := strings.TrimSpace(u.Message.Text[1:])
-		chartData, caption, err := commands.CommandChartWithTicker(coinSymbol)
+		rawArgs := strings.TrimSpace(u.Message.Text[1:])
+		coin, timeRange := ParseArguments(rawArgs)
+
+		chartData, caption, err := commands.CommandChartWithTicker(coin, timeRange)
 		if err != nil {
 			text = translation.Translate("Coin not found")
 			log.Error(err)

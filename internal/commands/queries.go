@@ -37,23 +37,23 @@ func GetTicker(currency *coinpaprika.Coin) (*coinpaprika.Coin, *coinpaprika.Tick
 }
 
 // GetHistoricalTickersByQuery fetches historical tickers for the given query.
-func GetHistoricalTickersByQuery(query string) (*coinpaprika.Coin, []*coinpaprika.TickerHistorical, error) {
+func GetHistoricalTickersByQuery(query string, t time.Time, i string) (*coinpaprika.Coin, []*coinpaprika.TickerHistorical, error) {
 	currency, err := searchCoin(query)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "unable to find coin by query")
 	}
 
 	log.Debugf("Best match for query '%s' is: %s", query, *currency.ID)
-	return GetHistoricalTickers(currency)
+	return GetHistoricalTickers(currency, t, i)
 }
 
 // GetHistoricalTickers fetches historical tickers for the given coin.
-func GetHistoricalTickers(currency *coinpaprika.Coin) (*coinpaprika.Coin, []*coinpaprika.TickerHistorical, error) {
+func GetHistoricalTickers(currency *coinpaprika.Coin, t time.Time, i string) (*coinpaprika.Coin, []*coinpaprika.TickerHistorical, error) {
 	tickerOpts := &coinpaprika.TickersHistoricalOptions{
 		Quote:    "USD",
 		Limit:    120,
-		Interval: "3h",
-		Start:    time.Now().Add(-24 * 7 * time.Hour).UTC(),
+		Interval: i,
+		Start:    t,
 	}
 	tickers, err := paprikaClient.Tickers.GetHistoricalTickersByID(*currency.ID, tickerOpts)
 	if err != nil {

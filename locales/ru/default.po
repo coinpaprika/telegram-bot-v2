@@ -30,5 +30,15 @@ msgstr "%s на [CoinPaprika](https://coinpaprika.com/valjuta/%s) 🌶/ Испо
 msgid "Ticker details"
 msgstr "[%s](https://coinpaprika.com/valjuta/%s) \\(%s\\)\nЦена:  *\\$%s*\nИзменение за 1ч: *%s%%*\nИзменение за 24ч: *%s%%*\nИзменение за 7д: *%s%%*\nОбъем:  *\\$%s*\nРыночная капитализация:  *\\$%s*\nЦиркулирующий объем:  *%s %s*\nОбщий объем:  *%s %s*\n\n[%s на CoinPaprika](https://coinpaprika.com/valjuta/%s) 🌶"
 
-msgid "7 days price chart"
-msgstr "График цен %s за 7 дней (%s) - CoinPaprika"
+msgid "price chart 4h"
+msgstr "%s График цен за 4 часа (%s) - CoinPaprika"
+
+msgid "price chart 12h"
+msgstr "%s График цен за 12 часов (%s) - CoinPaprika"
+
+msgid "price chart 24h"
+msgstr "%s График цен за 24 часа (%s) - CoinPaprika"
+
+msgid "price chart 7d"
+msgstr "%s График цен за 7 дней (%s) - CoinPaprika"
+

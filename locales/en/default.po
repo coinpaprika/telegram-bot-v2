@@ -30,5 +30,15 @@ msgstr "%s on [CoinPaprika](https://coinpaprika.com/coin/%s) 🌶/ Use this [Bot
 msgid "Ticker details"
 msgstr "[%s](https://coinpaprika.com/coin/%s) \\(%s\\)\nPrice:  *\\$%s*\n1h price change: *%s%%*\n24h price change: *%s%%*\n7d price change: *%s%%*\nVol:  *\\$%s*\nMCap:  *\\$%s*\nCirc\\. Supply:  *%s %s*\nTotal Supply:  *%s %s*\n\n[%s on CoinPaprika](https://coinpaprika.com/coin/%s) 🌶"
 
-msgid "7 days price chart"
+msgid "price chart 4h"
+msgstr "%s 4 hours price chart (%s) - CoinPaprika"
+
+msgid "price chart 12h"
+msgstr "%s 12 hours price chart (%s) - CoinPaprika"
+
+msgid "price chart 24h"
+msgstr "%s 24 hours price chart (%s) - CoinPaprika"
+
+msgid "price chart 7d"
 msgstr "%s 7 days price chart (%s) - CoinPaprika"
+
