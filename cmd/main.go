@@ -3,6 +3,9 @@ package main
 import (
 	"bytes"
 	"coinpaprika-telegram-bot/config"
+	"coinpaprika-telegram-bot/internal/alert"
+	"coinpaprika-telegram-bot/internal/database"
+	"coinpaprika-telegram-bot/internal/price"
 	"coinpaprika-telegram-bot/internal/telegram"
 	"fmt"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -87,7 +90,12 @@ func NewBotMetrics() *BotMetrics {
 
 func main() {
 	gotext.Configure("locales", strings.ToLower(config.GetString("lang")), "default")
+	err := database.InitDB("/app/data/bot.db")
+	if err != nil {
+		log.Fatalf("failed to create bot: %v", err)
+	}
 
+	price.StartPriceUpdater()
 	bot, err := telegram.NewBot(telegram.BotConfig{
 		Token:          config.GetString("telegram_bot_token"),
 		Debug:          config.GetBool("debug"),
@@ -97,6 +105,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to create bot: %v", err)
 	}
+
+	alert.StartAlertService(bot)
 
 	updates, err := bot.GetUpdatesChannel()
 	if err != nil {
@@ -120,8 +130,18 @@ func setupLogging() {
 
 func handleUpdates(bot *telegram.Bot, updates tgbotapi.UpdatesChannel) {
 	for update := range updates {
+		if update.CallbackQuery != nil {
+			bot.HandleCallbackQuery(update.CallbackQuery)
+			continue
+		}
+
 		if update.Message == nil {
 			log.Debug("Received non-message or non-command")
+			continue
+		}
+
+		if update.Message.ReplyToMessage != nil {
+			bot.HandleReply(update.Message)
 			continue
 		}
 

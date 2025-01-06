@@ -1,6 +1,7 @@
 package commands
 
 import (
+	"coinpaprika-telegram-bot/lib/helpers"
 	"coinpaprika-telegram-bot/lib/translation"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -18,10 +19,10 @@ func CommandSupply(argument string) (string, error) {
 	if ticker == nil || ticker.Name == nil || ticker.ID == nil || ticker.CirculatingSupply == nil {
 		return translation.Translate(
 			"Coin not traded",
-			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
+			helpers.EscapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
 	return translation.Translate(
 		"Coin supply details",
-		escapeMarkdownV2(*ticker.Name), formatSupplyUS(*ticker.CirculatingSupply), *ticker.Symbol, *ticker.ID), nil
+		helpers.EscapeMarkdownV2(*ticker.Name), helpers.FormatSupplyUS(*ticker.CirculatingSupply), *ticker.Symbol, *ticker.ID), nil
 }

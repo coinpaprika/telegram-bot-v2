@@ -21,7 +21,7 @@ RUN cp /usr/bin/curl /curl-libs/ && \
 
 FROM alpine:3.18
 
-RUN apk add --no-cache bash ca-certificates && \
+RUN apk add --no-cache bash ca-certificates sqlite && \
     update-ca-certificates
 
 COPY --from=builder /app/bot /
@@ -30,8 +30,14 @@ COPY --from=curl-stage /curl-libs/curl /usr/bin/curl
 COPY config /config
 COPY locales /locales
 
+# Create and set permissions for the data directory
+RUN mkdir -p /app/data && chmod -R 777 /app/data
+
 ENV METRICS_PORT=9090
 ENV PATH="/usr/bin:$PATH"
+
+# Persist data directory
+VOLUME ["/app/data"]
 
 HEALTHCHECK --interval=30s --timeout=10s --retries=3 CMD /usr/bin/curl -f http://localhost:${METRICS_PORT}/health || exit 1
 

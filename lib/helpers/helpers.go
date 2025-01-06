@@ -1,4 +1,4 @@
-package commands
+package helpers
 
 import (
 	"golang.org/x/text/language"
@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func escapeMarkdownV2(text string) string {
+func EscapeMarkdownV2(text string) string {
 	charactersToEscape := []string{".", "-", "_", "*", "[", "]", "(", ")", "~", "`", ">", "#", "+", "=", "|", "{", "}", "!"}
 
 	for _, char := range charactersToEscape {
@@ -15,7 +15,7 @@ func escapeMarkdownV2(text string) string {
 	return text
 }
 
-func formatPriceUS(price float64, escapeMarkdown bool) string {
+func FormatPriceUS(price float64, escapeMarkdown bool) string {
 	decimals := 6
 
 	if price >= 1000 {
@@ -33,12 +33,12 @@ func formatPriceUS(price float64, escapeMarkdown bool) string {
 	formatted := strings.ReplaceAll(withCommaThousandSep, ",", thousandSeparator)
 
 	if escapeMarkdown {
-		return escapeMarkdownV2(formatted)
+		return EscapeMarkdownV2(formatted)
 	}
 	return formatted
 }
 
-func formatPriceRoundedUS(price float64) string {
+func FormatPriceRoundedUS(price float64) string {
 	roundedPrice := int(price + 0.5)
 
 	thousandSeparator := ","
@@ -47,10 +47,10 @@ func formatPriceRoundedUS(price float64) string {
 	withCommaThousandSep := p.Sprintf("%d", roundedPrice)
 	formatted := strings.ReplaceAll(withCommaThousandSep, ",", thousandSeparator)
 
-	return escapeMarkdownV2(formatted)
+	return EscapeMarkdownV2(formatted)
 }
 
-func formatSupplyUS(supply int64) string {
+func FormatSupplyUS(supply int64) string {
 	p := message.NewPrinter(language.English)
-	return escapeMarkdownV2(p.Sprintf("%d", supply))
+	return EscapeMarkdownV2(p.Sprintf("%d", supply))
 }

@@ -2,10 +2,10 @@ package commands
 
 import (
 	"coinpaprika-telegram-bot/internal/chart"
+	"coinpaprika-telegram-bot/lib/helpers"
 	"coinpaprika-telegram-bot/lib/translation"
 	"fmt"
 	"github.com/coinpaprika/coinpaprika-api-go-client/v2/coinpaprika"
-	"github.com/davecgh/go-spew/spew"
 	"github.com/pkg/errors"
 	"github.com/wcharczuk/go-chart/v2/drawing"
 	"log"
@@ -59,7 +59,7 @@ func CommandChart(argument, timeRange string) ([]byte, string, error) {
 	if len(tickers) <= 0 {
 		return nil, translation.Translate(
 			"Coin not traded",
-			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
+			helpers.EscapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
 	chartData, err := renderChart(c, tickers, timeRange)
@@ -88,7 +88,6 @@ func CommandChartWithTicker(argument, timeRange string) ([]byte, string, error) 
 	if err != nil {
 		return nil, "", err
 	}
-	spew.Dump(tickers)
 
 	_, details, err := GetTicker(c)
 	if err != nil {
@@ -98,32 +97,32 @@ func CommandChartWithTicker(argument, timeRange string) ([]byte, string, error) 
 	if details == nil || details.Quotes == nil {
 		return nil, translation.Translate(
 			"Coin not traded",
-			escapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
+			helpers.EscapeMarkdownV2(*c.Name), *c.Symbol, *c.ID, *c.ID), nil
 	}
 
 	usdQuote := details.Quotes["USD"]
 
 	caption := translation.Translate(
 		"Ticker details",
-		escapeMarkdownV2(*details.Name),
+		helpers.EscapeMarkdownV2(*details.Name),
 		*details.ID,
 		*details.Symbol,
-		formatPriceUS(*usdQuote.Price, true),
-		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange1h)),
-		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange24h)),
-		escapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange7d)),
-		formatPriceRoundedUS(math.Round(*usdQuote.Volume24h)),
-		formatPriceRoundedUS(math.Round(*usdQuote.MarketCap)),
+		helpers.FormatPriceUS(*usdQuote.Price, true),
+		helpers.EscapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange1h)),
+		helpers.EscapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange24h)),
+		helpers.EscapeMarkdownV2(fmt.Sprintf("%.2f", *usdQuote.PercentChange7d)),
+		helpers.FormatPriceRoundedUS(math.Round(*usdQuote.Volume24h)),
+		helpers.FormatPriceRoundedUS(math.Round(*usdQuote.MarketCap)),
 		func() string {
 			if details.CirculatingSupply != nil {
-				return formatSupplyUS(*details.CirculatingSupply)
+				return helpers.FormatSupplyUS(*details.CirculatingSupply)
 			}
 			return "N/A"
 		}(),
 		*details.Symbol,
-		formatSupplyUS(*details.TotalSupply),
+		helpers.FormatSupplyUS(*details.TotalSupply),
 		*details.Symbol,
-		escapeMarkdownV2(*details.Name),
+		helpers.EscapeMarkdownV2(*details.Name),
 		*details.ID,
 	)
 
@@ -228,7 +227,7 @@ func renderChart(c *coinpaprika.Coin, tickers []*coinpaprika.TickerHistorical, t
 				Top:  "20px",
 			}
 			opt.ValueFormatter = func(v float64) string {
-				return formatPriceUS(v, false)
+				return helpers.FormatPriceUS(v, false)
 			}
 			opt.XAxis = chart.XAxisOption{
 				Data:        xLabels,

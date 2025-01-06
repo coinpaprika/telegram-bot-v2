@@ -16,7 +16,7 @@ func init() {
 
 // GetTickerByQuery retrieves the ticker for the given query (symbol, name, etc.)
 func GetTickerByQuery(query string) (*coinpaprika.Coin, *coinpaprika.Ticker, error) {
-	currency, err := searchCoin(query)
+	currency, err := SearchCoin(query)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "unable to find coin by query")
 	}
@@ -38,7 +38,7 @@ func GetTicker(currency *coinpaprika.Coin) (*coinpaprika.Coin, *coinpaprika.Tick
 
 // GetHistoricalTickersByQuery fetches historical tickers for the given query.
 func GetHistoricalTickersByQuery(query string, t time.Time, i string) (*coinpaprika.Coin, []*coinpaprika.TickerHistorical, error) {
-	currency, err := searchCoin(query)
+	currency, err := SearchCoin(query)
 	if err != nil {
 		return nil, nil, errors.Wrap(err, "unable to find coin by query")
 	}
@@ -62,8 +62,8 @@ func GetHistoricalTickers(currency *coinpaprika.Coin, t time.Time, i string) (*c
 	return currency, tickers, nil
 }
 
-// searchCoin searches for a coin based on the provided query.
-func searchCoin(query string) (*coinpaprika.Coin, error) {
+// SearchCoin searches for a coin based on the provided query.
+func SearchCoin(query string) (*coinpaprika.Coin, error) {
 	searchOpts := &coinpaprika.SearchOptions{
 		Query:      query,
 		Categories: "currencies",
@@ -80,6 +80,25 @@ func searchCoin(query string) (*coinpaprika.Coin, error) {
 	}
 
 	return result.Currencies[0], nil
+}
+
+func SearchCoins(query string) ([]*coinpaprika.Coin, error) {
+	searchOpts := &coinpaprika.SearchOptions{
+		Query:      query,
+		Categories: "currencies",
+		Modifier:   "symbol_search",
+	}
+	result, err := paprikaClient.Search.Search(searchOpts)
+	if err != nil || len(result.Currencies) == 0 {
+		log.Debugf("No results for symbol search, trying name search for '%s'", query)
+		searchOpts = &coinpaprika.SearchOptions{Query: query, Categories: "currencies"}
+		result, err = paprikaClient.Search.Search(searchOpts)
+		if err != nil || len(result.Currencies) == 0 {
+			return nil, errors.Errorf("invalid coin name, ticker, or symbol: %s", query)
+		}
+	}
+
+	return result.Currencies, nil
 }
 
 func getClient() *coinpaprika.Client {

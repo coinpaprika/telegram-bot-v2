@@ -6,6 +6,7 @@ services:
     volumes:
       - go-modules:/go/pkg/mod
       - .:/app
+      - ./data:/app/data
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:${METRICS_PORT}/health || exit 1"]
       interval: 30s
