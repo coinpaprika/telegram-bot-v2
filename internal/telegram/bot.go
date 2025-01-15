@@ -7,6 +7,7 @@ import (
 	"coinpaprika-telegram-bot/lib/helpers"
 	"coinpaprika-telegram-bot/lib/translation"
 	"fmt"
+	"github.com/coinpaprika/coinpaprika-api-go-client/v2/coinpaprika"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 	"github.com/pkg/errors"
 	log "github.com/sirupsen/logrus"
@@ -25,8 +26,9 @@ func NewBot(c BotConfig) (*Bot, error) {
 	bot.Debug = c.Debug
 
 	return &Bot{
-		Bot:    bot,
-		Config: c,
+		Bot:              bot,
+		Config:           c,
+		messageTargetMap: make(map[int]string),
 	}, nil
 }
 
@@ -139,7 +141,12 @@ func (b *Bot) HandleUpdate(u tgbotapi.Update) string {
 			}
 		}
 	case "alert":
-		return b.HandleAlertCommand(u)
+		args := u.Message.CommandArguments()
+		if strings.TrimSpace(args) == "list" {
+			text = b.HandleAlertListCommand(u.Message.Chat.ID)
+		} else {
+			return b.HandleAlertCommand(u)
+		}
 	}
 
 	// Handle $ commands
@@ -183,16 +190,25 @@ func (b *Bot) HandleCallbackQuery(callbackQuery *tgbotapi.CallbackQuery) {
 	case strings.HasPrefix(data, "alert_select"):
 		parts := strings.Split(data, "|")
 		if len(parts) < 3 {
-			b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, "❌ Invalid alert data."))
+			b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, translation.Translate("Invalid alert data.")))
+			return
+		}
+		target := parts[2]
+		ticker, found := price.GetTickerByID(parts[1])
+		if !found {
+			b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, translation.Translate("Invalid alert data.")))
 			return
 		}
 
-		ticker := parts[1]
-		target := parts[2]
-
-		successMsg, err := b.InsertAlert(chatID, ticker, target)
+		coin, err := commands.GetCoinByID(ticker)
 		if err != nil {
-			b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, "❌ Failed to save alert. Please try again later."))
+			b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, translation.Translate("Invalid alert data.")))
+			return
+		}
+
+		successMsg, err := b.InsertAlert(chatID, coin, target)
+		if err != nil {
+			b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, translation.Translate("Failed to save alert. Please try again later.")))
 			return
 		}
 
@@ -207,16 +223,16 @@ func (b *Bot) HandleCallbackQuery(callbackQuery *tgbotapi.CallbackQuery) {
 		msg := tgbotapi.NewMessage(chatID, successMsg)
 		msg.ParseMode = "MarkdownV2"
 		b.Bot.Send(msg)
-		b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, "✅ Alert saved successfully."))
+		b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, translation.Translate("Alert saved successfully.")))
 
 	case strings.HasPrefix(data, "alert_cancel"):
 		parts := strings.Split(data, "|")
-		if len(parts) < 3 {
-			b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, "❌ Invalid alert data."))
+		if len(parts) < 2 {
+			b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, translation.Translate("Invalid alert data.")))
 			return
 		}
 
-		target := parts[2]
+		target := parts[1]
 
 		// Delete the options message
 		deleteMsg := tgbotapi.NewDeleteMessage(chatID, messageID)
@@ -225,28 +241,28 @@ func (b *Bot) HandleCallbackQuery(callbackQuery *tgbotapi.CallbackQuery) {
 			log.Error("Failed to delete options message: ", err)
 		}
 
-		msg := tgbotapi.NewMessage(chatID, helpers.EscapeMarkdownV2(fmt.Sprintf(
-			"❗ Please send the full link of the coin with target price *%s*.",
-			target,
-		)))
+		msg := tgbotapi.NewMessage(chatID, fmt.Sprintf(
+			translation.Translate("Please send the full link of the coin with target price %s"),
+			helpers.EscapeMarkdownV2(target),
+		))
 		msg.ParseMode = "MarkdownV2"
 		msg.ReplyMarkup = tgbotapi.ForceReply{
 			ForceReply:            true,
 			Selective:             true,
-			InputFieldPlaceholder: "e.g., coinpaprika.com/coin/btc-bitcoin/",
+			InputFieldPlaceholder: translation.Translate("e.g., coinpaprika.com/coin/btc-bitcoin/"),
 		}
 
-		_, err = b.Bot.Send(msg)
+		m, err := b.Bot.Send(msg)
 		if err != nil {
 			log.Error("Failed to prompt for full link: ", err)
-			b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, "❌ Failed to prompt for a reply. Please try again."))
+			b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, translation.Translate("Failed to prompt for a reply. Please try again.")))
 			return
 		}
 
-		b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, "ℹ️ Please reply with the full coin link."))
-
+		b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, translation.Translate("Please reply with the full coin link.")))
+		b.messageTargetMap[m.MessageID] = target
 	default:
-		b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, "❌ Unknown action. Please try again."))
+		b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, translation.Translate("Unknown action. Please try again.")))
 	}
 }
 
@@ -254,36 +270,44 @@ func (b *Bot) HandleReply(message *tgbotapi.Message) {
 	chatID := message.Chat.ID
 	replyText := strings.TrimSpace(message.Text)
 
-	if strings.Contains(message.ReplyToMessage.Text, "Please send the full link of the coin") {
-		reTarget := regexp.MustCompile(`target price \*(.+?)\*`)
-		targetMatches := reTarget.FindStringSubmatch(message.ReplyToMessage.Text)
-		if len(targetMatches) < 2 {
+	// Check if the referenced message exists in the mapping
+	if message.ReplyToMessage != nil {
+		target, exists := b.messageTargetMap[message.ReplyToMessage.MessageID]
+		if !exists {
 			b.SendMessage(Message{
 				ChatID: int(chatID),
-				Text:   "❌ Could not extract the target price. Please start again.",
+				Text:   translation.Translate("no_context_for_reply"),
 			})
 			return
 		}
 
-		target := targetMatches[1]
-
-		reLink := regexp.MustCompile(`https://coinpaprika\.com/coin/([\w-]+)/?`)
+		// Validate the link
+		reLink := regexp.MustCompile(`https://coinpaprika.com/(coin|waluta|valjuta)/([\w-]+)/?`)
 		linkMatches := reLink.FindStringSubmatch(replyText)
-		if len(linkMatches) < 2 {
+		if len(linkMatches) < 3 {
 			b.SendMessage(Message{
 				ChatID: int(chatID),
-				Text:   "❌ Invalid link format. Please provide a valid coin link, such as `https://coinpaprika.com/coin/sol-solana/`.",
+				Text:   translation.Translate("invalid_link_format"),
 			})
 			return
 		}
 
-		ticker := linkMatches[1]
+		ticker := linkMatches[2]
+		coin, err := commands.GetCoinByID(ticker)
+		if err != nil {
+			log.Error(err)
+			b.SendMessage(Message{
+				ChatID: int(chatID),
+				Text:   translation.Translate("coin_search_failed"),
+			})
+			return
+		}
 
-		successMsg, err := b.InsertAlert(chatID, ticker, target)
+		successMsg, err := b.InsertAlert(chatID, coin, target)
 		if err != nil {
 			b.SendMessage(Message{
 				ChatID: int(chatID),
-				Text:   "❌ Failed to save alert with the provided link. Please try again.",
+				Text:   translation.Translate("alert_save_failed_with_link"),
 			})
 			return
 		}
@@ -292,6 +316,14 @@ func (b *Bot) HandleReply(message *tgbotapi.Message) {
 			ChatID: int(chatID),
 			Text:   successMsg,
 		})
+
+		// Remove the mapping after processing the reply
+		delete(b.messageTargetMap, message.ReplyToMessage.MessageID)
+	} else {
+		b.SendMessage(Message{
+			ChatID: int(chatID),
+			Text:   translation.Translate("no_reply_message"),
+		})
 	}
 }
 
@@ -299,41 +331,52 @@ func (b *Bot) HandleReply(message *tgbotapi.Message) {
 func (b *Bot) HandleAlertCommand(u tgbotapi.Update) string {
 	args := u.Message.CommandArguments()
 	ticker, target := ParseArguments(args)
+	if ticker == "list" {
+		b.HandleAlertListCommand(u.Message.Chat.ID)
+		return ""
+	}
 
 	if ticker == "" || target == "" {
-		return helpers.EscapeMarkdownV2("Usage: /alert {ticker} {target} (e.g., /alert btc 98000$ or /alert btc 10%)")
+		return helpers.EscapeMarkdownV2(translation.Translate("alert_command_usage"))
 	}
 
 	coins, err := commands.SearchCoins(ticker)
 	if err != nil {
 		log.Error(err)
-		return translation.Translate("❌ Failed to search for the coin.")
+		return translation.Translate("coin_search_failed")
 	}
-
-	msg := tgbotapi.NewMessage(u.Message.Chat.ID, fmt.Sprintf(
-		helpers.EscapeMarkdownV2("🔍 Found %d result(s) for %s. Please select one or choose to send a manual link:"),
-		len(coins), ticker,
-	))
-	msg.ParseMode = "MarkdownV2"
 
 	var buttons [][]tgbotapi.InlineKeyboardButton
 
+	var counter int
 	for i, coin := range coins {
 		if i >= 4 {
 			break
 		}
+		p, found := price.GetPrice(*coin.ID)
+
+		if !found {
+			continue
+		}
 		buttons = append(buttons, tgbotapi.NewInlineKeyboardRow(
 			tgbotapi.NewInlineKeyboardButtonData(
-				fmt.Sprintf("%s (%s)", *coin.Name, *coin.Symbol),
-				fmt.Sprintf("alert_select|%s|%s", *coin.ID, target),
+				fmt.Sprintf(translation.Translate("coin_display_format"), *coin.Name, *coin.Symbol),
+				fmt.Sprintf("alert_select|%d|%s", p.ID, target),
 			),
 		))
+		counter++
 	}
+
+	msg := tgbotapi.NewMessage(u.Message.Chat.ID, fmt.Sprintf(
+		helpers.EscapeMarkdownV2(translation.Translate("coin_search_results")),
+		counter, ticker,
+	))
+	msg.ParseMode = "MarkdownV2"
 
 	buttons = append(buttons, tgbotapi.NewInlineKeyboardRow(
 		tgbotapi.NewInlineKeyboardButtonData(
-			"❌ None of these, I'll send the link",
-			fmt.Sprintf("alert_cancel|%s|%s", ticker, target),
+			translation.Translate("alert_manual_link_option"),
+			fmt.Sprintf("alert_cancel|%s", target),
 		),
 	))
 
@@ -341,40 +384,90 @@ func (b *Bot) HandleAlertCommand(u tgbotapi.Update) string {
 
 	_, err = b.Bot.Send(msg)
 	if err != nil {
-		log.Error("Failed to send coin selection buttons: ", err)
+		log.Error(translation.Translate("coin_selection_buttons_failed"), err)
 	}
 	return ""
 }
 
 // InsertAlert handles alert insertion logic
-func (b *Bot) InsertAlert(chatID int64, ticker string, target string) (string, error) {
+func (b *Bot) InsertAlert(chatID int64, coin *coinpaprika.Coin, target string) (string, error) {
 	var alertType string
-	var alertTypeSymbol string
+	var formattedTarget string
 	if strings.Contains(target, "%") || strings.HasPrefix(target, "-") {
 		alertType = "percent"
-		alertTypeSymbol = "%"
 		target = strings.ReplaceAll(target, "%", "")
+
+		targetValue, err := strconv.ParseFloat(target, 64)
+		if err != nil {
+			return "", errors.New(translation.Translate("invalid_percent_target"))
+		}
+		formattedTarget = helpers.EscapeMarkdownV2(fmt.Sprintf("%.0f%%", targetValue))
 	} else {
+		targetValue, err := strconv.ParseFloat(target, 64)
+		if err != nil {
+			return "", errors.New(translation.Translate("invalid_price_target"))
+		}
 		alertType = "price"
-		alertTypeSymbol = "$"
+		formattedTarget = "$" + helpers.FormatPriceUS(targetValue, true)
 	}
 
-	cp, exists := price.GetPrice(ticker)
+	cp, exists := price.GetPrice(*coin.ID)
 	if !exists {
-		return "", errors.New("failed to get current price")
+		return "", errors.New(translation.Translate("current_price_not_found"))
 	}
 
-	err := database.InsertAlert(chatID, ticker, target, alertType, strconv.FormatFloat(cp.PriceUSD, 'f', -1, 64))
+	err := database.InsertAlert(chatID, *coin.ID, target, alertType, strconv.FormatFloat(cp.PriceUSD, 'f', -1, 64))
 	if err != nil {
-		log.Error("Failed to save alert: ", err)
-		return "", errors.Wrap(err, "failed to insert alert into database")
+		log.Error(translation.Translate("alert_save_failed"), err)
+		return "", errors.Wrap(err, translation.Translate("database_insert_failed"))
 	}
 
 	successMsg := fmt.Sprintf(
-		"✅ Alert set for *%s* at *%s%s*",
-		helpers.EscapeMarkdownV2(ticker),
-		helpers.EscapeMarkdownV2(target),
-		alertTypeSymbol,
+		translation.Translate("alert_set_success"),
+		helpers.EscapeMarkdownV2(fmt.Sprintf("%s (%s)", *coin.Name, *coin.Symbol)),
+		formattedTarget,
 	)
 	return successMsg, nil
+}
+
+func (b *Bot) HandleAlertListCommand(chatID int64) string {
+	alerts, err := database.GetAlertsByChatID(chatID)
+	if err != nil {
+		log.Error(translation.Translate("error_fetching_alerts"), err)
+		return translation.Translate("fetch_alerts_failed")
+	}
+
+	if len(alerts) == 0 {
+		return translation.Translate("no_active_alerts")
+	}
+
+	var alertList strings.Builder
+	alertList.WriteString(translation.Translate("active_alerts_list_header"))
+	for _, alert := range alerts {
+		c, err := commands.GetCoinByID(alert.Ticker)
+		if err != nil {
+			continue
+		}
+
+		var targetString string
+		if alert.AlertType == "percent" {
+			targetString = fmt.Sprintf(translation.Translate("alert_target_percent"), helpers.FormatPercentage(alert.Target))
+		} else if alert.AlertType == "price" {
+			targetString = fmt.Sprintf(translation.Translate("alert_target_price"), helpers.FormatPriceUS(alert.Target, true))
+		} else {
+			targetString = fmt.Sprintf(translation.Translate("alert_target_generic"), helpers.FormatPriceUS(alert.Target, true))
+		}
+
+		formattedDate := helpers.EscapeMarkdownV2(helpers.FormatDate(alert.CreatedAt))
+
+		alertList.WriteString(fmt.Sprintf(
+			translation.Translate("alert_list_item_format"),
+			helpers.EscapeMarkdownV2(*c.Name),
+			helpers.EscapeMarkdownV2(*c.Symbol),
+			targetString,
+			formattedDate,
+		))
+	}
+
+	return alertList.String()
 }

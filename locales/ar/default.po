@@ -42,4 +42,110 @@ msgstr "مخطط أسعار %s لمدة 24 ساعة (%s) - كوين بابريك
 msgid "price chart 7d"
 msgstr "مخطط أسعار %s لمدة 7 أيام (%s) - كوين بابريكا"
 
+msgid "Invalid alert data."
+msgstr "❌ بيانات التنبيه غير صالحة."
 
+msgid "Failed to save alert. Please try again later."
+msgstr "❌ فشل في حفظ التنبيه. الرجاء المحاولة لاحقًا."
+
+msgid "Alert saved successfully."
+msgstr "✅ تم حفظ التنبيه بنجاح."
+
+msgid "Please send the full link of the coin with target price %s"
+msgstr "❗ الرجاء إرسال الرابط الكامل للعملة مع السعر المستهدف *%s*"
+
+msgid "e.g., coinpaprika.com/coin/btc-bitcoin/"
+msgstr "على سبيل المثال، coinpaprika.com/coin/btc-bitcoin/"
+
+msgid "Failed to prompt for a reply. Please try again."
+msgstr "❌ فشل في طلب الرد. الرجاء المحاولة مرة أخرى."
+
+msgid "Please reply with the full coin link."
+msgstr "ℹ️ الرجاء الرد بالرابط الكامل للعملة."
+
+msgid "Unknown action. Please try again."
+msgstr "❌ إجراء غير معروف. الرجاء المحاولة مرة أخرى."
+
+msgid "Please send the full link of the coin"
+msgstr "ℹ️ يرجى إرسال الرابط الكامل للعملة."
+
+msgid "Could not extract the target price. Please start again."
+msgstr "❌ لم يتمكن من استخراج السعر المستهدف. يرجى المحاولة مرة أخرى."
+
+msgid "Invalid link format. Please provide a valid coin link, such as https://coinpaprika.com/coin/sol-solana/"
+msgstr "❌ تنسيق الرابط غير صالح. يرجى تقديم رابط صالح للعملة، مثل: https://coinpaprika.com/coin/sol-solana/."
+
+msgid "Failed to search for the coin."
+msgstr "❌ فشل في البحث عن العملة."
+
+msgid "Failed to save alert with the provided link. Please try again."
+msgstr "❌ فشل في حفظ التنبيه بالرابط المقدم. يرجى المحاولة مرة أخرى."
+
+msgid "alert_command_usage"
+msgstr "الاستخدام: /alert {الرمز} {الهدف} (مثال: /alert btc 98000$ أو /alert btc 10%)"
+
+msgid "coin_search_failed"
+msgstr "❌ فشل في البحث عن العملة."
+
+msgid "coin_display_format"
+msgstr "%s (%s)"
+
+msgid "coin_search_results"
+msgstr "تم العثور على %d نتيجة لـ %s. يرجى اختيار واحدة أو إرسال الرابط يدويًا:"
+
+msgid "alert_manual_link_option"
+msgstr "لا شيء من هذه الخيارات، سأرسل الرابط"
+
+msgid "coin_selection_buttons_failed"
+msgstr "فشل إرسال أزرار اختيار العملة: %v"
+
+msgid "invalid_percent_target"
+msgstr "قيمة الهدف بالنسبة المئوية غير صالحة."
+
+msgid "invalid_price_target"
+msgstr "قيمة الهدف السعري غير صالحة."
+
+msgid "current_price_not_found"
+msgstr "فشل في الحصول على السعر الحالي للعملة."
+
+msgid "alert_save_failed"
+msgstr "فشل في حفظ التنبيه."
+
+msgid "database_insert_failed"
+msgstr "فشل في إدخال التنبيه في قاعدة البيانات."
+
+msgid "alert_set_success"
+msgstr "✅ تم تعيين التنبيه لـ *%s* عند *%s*"
+
+msgid "error_fetching_alerts"
+msgstr "خطأ في جلب التنبيهات: %v"
+
+msgid "fetch_alerts_failed"
+msgstr "❌ فشل في جلب التنبيهات الخاصة بك. يرجى المحاولة لاحقاً."
+
+msgid "no_active_alerts"
+msgstr "ℹ️ *لا توجد تنبيهات نشطة*\nليس لديك أي تنبيهات حالياً. استخدم `/addalert` لإنشاء واحد."
+
+msgid "active_alerts_list_header"
+msgstr "🔔 *تنبيهاتك النشطة:*\n\n"
+
+msgid "alert_target_percent"
+msgstr "📉 التغيير: `%s%%`"
+
+msgid "alert_target_price"
+msgstr "💲 السعر: `$%s`"
+
+msgid "alert_target_generic"
+msgstr "🎯 الهدف: `%s`"
+
+msgid "alert_list_item_format"
+msgstr "▫️ *%s \\(%s\\)*\n   %s\n   📅 تمت الإضافة: %s\n\n"
+
+msgid "no_context_for_reply"
+msgstr "❌ لا يوجد سياق لهذه الرد. الرجاء المحاولة مرة أخرى."
+
+msgid "no_reply_message"
+msgstr "❌ تحتاج إلى الرد على رسالة صالحة."
+
+msgid "invalid_link_format"
+msgstr "❌ تنسيق الرابط غير صالح. الرجاء تقديم رابط عملة صحيح مثل https://coinpaprika.com/coin/sol-solana/"

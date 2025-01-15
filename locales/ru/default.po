@@ -42,3 +42,110 @@ msgstr "%s График цен за 24 часа (%s) - CoinPaprika"
 msgid "price chart 7d"
 msgstr "%s График цен за 7 дней (%s) - CoinPaprika"
 
+msgid "Invalid alert data."
+msgstr "❌ Неверные данные оповещения."
+
+msgid "Failed to save alert. Please try again later."
+msgstr "❌ Не удалось сохранить оповещение. Попробуйте позже."
+
+msgid "Alert saved successfully."
+msgstr "✅ Оповещение успешно сохранено."
+
+msgid "Please send the full link of the coin with target price %s"
+msgstr "❗ Пожалуйста, отправьте полную ссылку на монету с целевой ценой *%s*"
+
+msgid "e.g., coinpaprika.com/coin/btc-bitcoin/"
+msgstr "например, coinpaprika.com/coin/btc-bitcoin/"
+
+msgid "Failed to prompt for a reply. Please try again."
+msgstr "❌ Не удалось запросить ответ. Пожалуйста, попробуйте снова."
+
+msgid "Please reply with the full coin link."
+msgstr "ℹ️ Пожалуйста, ответьте полной ссылкой на монету."
+
+msgid "Unknown action. Please try again."
+msgstr "❌ Неизвестное действие. Попробуйте снова."
+
+msgid "Please send the full link of the coin"
+msgstr "ℹ️ Пожалуйста, отправьте полную ссылку на монету."
+
+msgid "Could not extract the target price. Please start again."
+msgstr "❌ Не удалось извлечь целевую цену. Пожалуйста, начните заново."
+
+msgid "Invalid link format. Please provide a valid coin link, such as https://coinpaprika.com/coin/sol-solana/"
+msgstr "❌ Неверный формат ссылки. Пожалуйста, предоставьте действительную ссылку на монету, например: https://coinpaprika.com/coin/sol-solana/."
+
+msgid "Failed to search for the coin."
+msgstr "❌ Не удалось найти монету."
+
+msgid "Failed to save alert with the provided link. Please try again."
+msgstr "❌ Не удалось сохранить оповещение с предоставленной ссылкой. Пожалуйста, попробуйте снова."
+
+msgid "alert_command_usage"
+msgstr "Использование: /alert {тикер} {цель} (например, /alert btc 98000$ или /alert btc 10%)"
+
+msgid "coin_search_failed"
+msgstr "❌ Не удалось найти монету."
+
+msgid "coin_display_format"
+msgstr "%s (%s)"
+
+msgid "coin_search_results"
+msgstr "Найдено %d результат(ов) для %s. Выберите один или отправьте ссылку вручную:"
+
+msgid "alert_manual_link_option"
+msgstr "Ни один из них, я отправлю ссылку"
+
+msgid "coin_selection_buttons_failed"
+msgstr "Не удалось отправить кнопки выбора монеты: %v"
+
+msgid "invalid_percent_target"
+msgstr "Неверное значение целевого процента."
+
+msgid "invalid_price_target"
+msgstr "Неверное значение целевой цены."
+
+msgid "current_price_not_found"
+msgstr "Не удалось получить текущую цену для монеты."
+
+msgid "alert_save_failed"
+msgstr "Не удалось сохранить оповещение."
+
+msgid "database_insert_failed"
+msgstr "Не удалось вставить оповещение в базу данных."
+
+msgid "alert_set_success"
+msgstr "✅ Оповещение установлено для *%s* на *%s*"
+
+msgid "error_fetching_alerts"
+msgstr "Ошибка при получении оповещений: %v"
+
+msgid "fetch_alerts_failed"
+msgstr "❌ Не удалось получить ваши оповещения. Попробуйте позже."
+
+msgid "no_active_alerts"
+msgstr "ℹ️ *Нет активных оповещений*\nУ вас пока нет настроенных оповещений. Используйте `/addalert`, чтобы создать одно."
+
+msgid "active_alerts_list_header"
+msgstr "🔔 *Ваши активные оповещения:*\n\n"
+
+msgid "alert_target_percent"
+msgstr "📉 Изменение: `%s%%`"
+
+msgid "alert_target_price"
+msgstr "💲 Цена: `$%s`"
+
+msgid "alert_target_generic"
+msgstr "🎯 Цель: `%s`"
+
+msgid "alert_list_item_format"
+msgstr "▫️ *%s \\(%s\\)*\n   %s\n   📅 Добавлено: %s\n\n"
+
+msgid "no_context_for_reply"
+msgstr "❌ Контекст для этого ответа не найден. Попробуйте снова."
+
+msgid "no_reply_message"
+msgstr "❌ Вы должны ответить на действительное сообщение."
+
+msgid "invalid_link_format"
+msgstr "❌ Неверный формат ссылки. Пожалуйста, укажите правильную ссылку на монету, например https://coinpaprika.com/coin/sol-solana/"

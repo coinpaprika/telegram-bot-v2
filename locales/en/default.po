@@ -42,3 +42,110 @@ msgstr "%s 24 hours price chart (%s) - CoinPaprika"
 msgid "price chart 7d"
 msgstr "%s 7 days price chart (%s) - CoinPaprika"
 
+msgid "Invalid alert data."
+msgstr "❌ Invalid alert data."
+
+msgid "Failed to save alert. Please try again later."
+msgstr "❌ Failed to save alert. Please try again later."
+
+msgid "Alert saved successfully."
+msgstr "✅ Alert saved successfully."
+
+msgid "Please send the full link of the coin with target price %s"
+msgstr "❗ Please send the full link of the coin with target price *%s*"
+
+msgid "e.g., coinpaprika.com/coin/btc-bitcoin/"
+msgstr "e.g., coinpaprika.com/coin/btc-bitcoin/"
+
+msgid "Failed to prompt for a reply. Please try again."
+msgstr "❌ Failed to prompt for a reply. Please try again."
+
+msgid "Please reply with the full coin link."
+msgstr "ℹ️ Please reply with the full coin link."
+
+msgid "Unknown action. Please try again."
+msgstr "❌ Unknown action. Please try again."
+
+msgid "Please send the full link of the coin"
+msgstr "ℹ️ Please send the full link of the coin."
+
+msgid "Could not extract the target price. Please start again."
+msgstr "❌ Could not extract the target price. Please start again."
+
+msgid "Invalid link format. Please provide a valid coin link, such as https://coinpaprika.com/coin/sol-solana/"
+msgstr "❌ Invalid link format. Please provide a valid coin link, such as https://coinpaprika.com/coin/sol-solana/."
+
+msgid "Failed to search for the coin."
+msgstr "❌ Failed to search for the coin."
+
+msgid "Failed to save alert with the provided link. Please try again."
+msgstr "❌ Failed to save alert with the provided link. Please try again."
+
+msgid "alert_command_usage"
+msgstr "Usage: /alert {ticker} {target} (e.g., /alert btc 98000$ or /alert btc 10%)"
+
+msgid "coin_search_failed"
+msgstr "❌ Failed to search for the coin."
+
+msgid "coin_display_format"
+msgstr "%s (%s)"
+
+msgid "coin_search_results"
+msgstr "Found %d result(s) for %s. Please select one or choose to send a manual link:"
+
+msgid "alert_manual_link_option"
+msgstr "None of these, I'll send the link"
+
+msgid "coin_selection_buttons_failed"
+msgstr "Failed to send coin selection buttons: %v"
+
+msgid "invalid_percent_target"
+msgstr "Invalid percent target value."
+
+msgid "invalid_price_target"
+msgstr "Invalid price target value."
+
+msgid "current_price_not_found"
+msgstr "Failed to get the current price for the coin."
+
+msgid "alert_save_failed"
+msgstr "Failed to save alert."
+
+msgid "database_insert_failed"
+msgstr "Failed to insert alert into the database."
+
+msgid "alert_set_success"
+msgstr "✅ Alert set for *%s* at *%s*"
+
+msgid "error_fetching_alerts"
+msgstr "Error fetching alerts: %v"
+
+msgid "fetch_alerts_failed"
+msgstr "❌ Failed to fetch your alerts. Please try again later."
+
+msgid "no_active_alerts"
+msgstr "ℹ️ *No Active Alerts Found*\nYou currently have no alerts set up. Use `/addalert` to create one."
+
+msgid "active_alerts_list_header"
+msgstr "🔔 *Your Active Alerts:*\n\n"
+
+msgid "alert_target_percent"
+msgstr "📉 Change: `%s%%`"
+
+msgid "alert_target_price"
+msgstr "💲 Price: `$%s`"
+
+msgid "alert_target_generic"
+msgstr "🎯 Target: `%s`"
+
+msgid "alert_list_item_format"
+msgstr "▫️ *%s \\(%s\\)*\n   %s\n   📅 Added: %s\n\n"
+
+msgid "no_context_for_reply"
+msgstr "❌ No context found for this reply. Please try again."
+
+msgid "no_reply_message"
+msgstr "❌ You need to reply to a valid message."
+
+msgid "invalid_link_format"
+msgstr "❌ Invalid link format. Please provide a valid coin link, such as https://coinpaprika.com/coin/sol-solana/"

@@ -4,12 +4,14 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"sync"
 	"time"
 )
 
 // PriceInfo represents the pricing details of a cryptocurrency
 type PriceInfo struct {
+	ID             int     `json:"id"`
 	Name           string  `json:"name"`
 	Symbol         string  `json:"symbol"`
 	PriceUSD       float64 `json:"price_usd"`
@@ -21,7 +23,9 @@ type PriceInfo struct {
 // priceStorage holds the cryptocurrency prices in memory
 var (
 	cryptoPrices      = make(map[string]PriceInfo)
+	idMapping         = make(map[string]string)
 	cryptoPricesMutex = sync.RWMutex{}
+	idMutex           = sync.RWMutex{}
 )
 
 // fetchCryptoPrices fetches prices from CoinPaprika API
@@ -68,8 +72,9 @@ func fetchCryptoPrices() {
 		}
 
 		cryptoPricesMutex.Lock()
-		for _, ticker := range tickers {
+		for i, ticker := range tickers {
 			cryptoPrices[ticker.ID] = PriceInfo{
+				ID:             i + 1,
 				Name:           ticker.Name,
 				Symbol:         ticker.Symbol,
 				PriceUSD:       ticker.Quotes.USD.Price,
@@ -77,6 +82,8 @@ func fetchCryptoPrices() {
 				PriceChange24h: ticker.Quotes.USD.PriceChange24h,
 				LastUpdated:    ticker.LastUpdated,
 			}
+
+			idMapping[strconv.Itoa(i+1)] = ticker.ID
 		}
 		cryptoPricesMutex.Unlock()
 
@@ -99,6 +106,14 @@ func GetPrice(tickerID string) (PriceInfo, bool) {
 
 	price, exists := cryptoPrices[tickerID]
 	return price, exists
+}
+
+func GetTickerByID(ID string) (string, bool) {
+	idMutex.RLock()
+	defer idMutex.RUnlock()
+
+	ticker, exists := idMapping[ID]
+	return ticker, exists
 }
 
 // GetAllPrices returns all stored cryptocurrency prices

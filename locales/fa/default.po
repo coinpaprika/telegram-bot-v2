@@ -42,3 +42,110 @@ msgstr "نمودار قیمت %s در ۲۴ ساعت گذشته (%s) - کوین �
 msgid "price chart 7d"
 msgstr "نمودار قیمت %s در ۷ روز گذشته (%s) - کوین پاپریکا"
 
+msgid "Invalid alert data."
+msgstr "❌ اطلاعات هشدار نامعتبر است."
+
+msgid "Failed to save alert. Please try again later."
+msgstr "❌ ذخیره هشدار با شکست مواجه شد. لطفاً بعداً دوباره امتحان کنید."
+
+msgid "Alert saved successfully."
+msgstr "✅ هشدار با موفقیت ذخیره شد."
+
+msgid "Please send the full link of the coin with target price %s"
+msgstr "❗ لطفاً لینک کامل کوین با قیمت هدف *%s* را ارسال کنید"
+
+msgid "e.g., coinpaprika.com/coin/btc-bitcoin/"
+msgstr "مثال: coinpaprika.com/coin/btc-bitcoin/"
+
+msgid "Failed to prompt for a reply. Please try again."
+msgstr "❌ درخواست پاسخ با شکست مواجه شد. لطفاً دوباره امتحان کنید."
+
+msgid "Please reply with the full coin link."
+msgstr "ℹ️ لطفاً با لینک کامل کوین پاسخ دهید."
+
+msgid "Unknown action. Please try again."
+msgstr "❌ اقدام ناشناخته. لطفاً دوباره امتحان کنید."
+
+msgid "Please send the full link of the coin"
+msgstr "ℹ️ لطفاً لینک کامل کوین را ارسال کنید."
+
+msgid "Could not extract the target price. Please start again."
+msgstr "❌ نمی‌توان قیمت هدف را استخراج کرد. لطفاً دوباره تلاش کنید."
+
+msgid "Invalid link format. Please provide a valid coin link, such as https://coinpaprika.com/coin/sol-solana/"
+msgstr "❌ قالب لینک نامعتبر است. لطفاً یک لینک معتبر مانند: https://coinpaprika.com/coin/sol-solana/ ارائه دهید."
+
+msgid "Failed to search for the coin."
+msgstr "❌ جستجوی کوین با شکست مواجه شد."
+
+msgid "Failed to save alert with the provided link. Please try again."
+msgstr "❌ ذخیره هشدار با لینک ارائه شده ناموفق بود. لطفاً دوباره تلاش کنید."
+
+msgid "alert_command_usage"
+msgstr "نحوه استفاده: /alert {نماد} {هدف} (مثال: /alert btc 98000$ یا /alert btc 10%)"
+
+msgid "coin_search_failed"
+msgstr "❌ جستجوی کوین با شکست مواجه شد."
+
+msgid "coin_display_format"
+msgstr "%s (%s)"
+
+msgid "coin_search_results"
+msgstr "برای %s تعداد %d نتیجه یافت شد. لطفاً یکی را انتخاب کنید یا لینک را به صورت دستی ارسال کنید:"
+
+msgid "alert_manual_link_option"
+msgstr "هیچ‌کدام از این موارد، من لینک را ارسال می‌کنم"
+
+msgid "coin_selection_buttons_failed"
+msgstr "ارسال دکمه‌های انتخاب کوین ناموفق بود: %v"
+
+msgid "invalid_percent_target"
+msgstr "مقدار درصد هدف نامعتبر است."
+
+msgid "invalid_price_target"
+msgstr "مقدار قیمت هدف نامعتبر است."
+
+msgid "current_price_not_found"
+msgstr "دریافت قیمت فعلی کوین ناموفق بود."
+
+msgid "alert_save_failed"
+msgstr "ذخیره هشدار ناموفق بود."
+
+msgid "database_insert_failed"
+msgstr "درج هشدار در پایگاه داده ناموفق بود."
+
+msgid "alert_set_success"
+msgstr "✅ هشدار برای *%s* با مقدار *%s* تنظیم شد."
+
+msgid "error_fetching_alerts"
+msgstr "خطا در دریافت هشدارها: %v"
+
+msgid "fetch_alerts_failed"
+msgstr "❌ دریافت هشدارهای شما ناموفق بود. لطفاً دوباره تلاش کنید."
+
+msgid "no_active_alerts"
+msgstr "ℹ️ *هیچ هشداری فعال نیست*\nشما هیچ هشداری تنظیم نکرده‌اید. برای ایجاد هشدار از `/addalert` استفاده کنید."
+
+msgid "active_alerts_list_header"
+msgstr "🔔 *هشدارهای فعال شما:*\n\n"
+
+msgid "alert_target_percent"
+msgstr "📉 تغییر: `%s%%`"
+
+msgid "alert_target_price"
+msgstr "💲 قیمت: `$%s`"
+
+msgid "alert_target_generic"
+msgstr "🎯 هدف: `%s`"
+
+msgid "alert_list_item_format"
+msgstr "▫️ *%s \\(%s\\)*\n   %s\n   📅 اضافه شده: %s\n\n"
+
+msgid "no_context_for_reply"
+msgstr "❌ برای این پاسخ متنی یافت نشد. لطفاً دوباره تلاش کنید."
+
+msgid "no_reply_message"
+msgstr "❌ شما باید به یک پیام معتبر پاسخ دهید."
+
+msgid "invalid_link_format"
+msgstr "❌ فرمت لینک نامعتبر است. لطفاً یک لینک معتبر ارائه دهید، مانند https://coinpaprika.com/coin/sol-solana/"

@@ -1,9 +1,12 @@
 package helpers
 
 import (
+	"fmt"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/text/language"
 	"golang.org/x/text/message"
 	"strings"
+	"time"
 )
 
 func EscapeMarkdownV2(text string) string {
@@ -53,4 +56,18 @@ func FormatPriceRoundedUS(price float64) string {
 func FormatSupplyUS(supply int64) string {
 	p := message.NewPrinter(language.English)
 	return EscapeMarkdownV2(p.Sprintf("%d", supply))
+}
+
+func FormatDate(dateString string) string {
+	// Example format: "2024-12-31T12:34:56Z"
+	t, err := time.Parse(time.RFC3339, dateString)
+	if err != nil {
+		log.Error("Error parsing date: ", err)
+		return "unknown date"
+	}
+	return t.Format("Jan 2, 2006")
+}
+
+func FormatPercentage(value float64) string {
+	return fmt.Sprintf("%.1f", value)
 }

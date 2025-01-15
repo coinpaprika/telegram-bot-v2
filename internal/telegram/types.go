@@ -11,8 +11,9 @@ type BotConfig struct {
 
 // Bot telegram interaction client
 type Bot struct {
-	Bot    *tgbotapi.BotAPI
-	Config BotConfig
+	Bot              *tgbotapi.BotAPI
+	Config           BotConfig
+	messageTargetMap map[int]string // Map MessageID to Target Price
 }
 
 // Message a telegram message struct

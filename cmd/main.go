@@ -12,11 +12,17 @@ import (
 	"github.com/leonelquinteros/gotext"
 	"github.com/prometheus/client_golang/prometheus"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	dto "github.com/prometheus/client_model/go"
 	log "github.com/sirupsen/logrus"
 	"net/http"
+	"os"
+	"os/signal"
 	"runtime"
+	"strconv"
 	"strings"
 	"sync"
+	"syscall"
+	"time"
 )
 
 type BotMetrics struct {
@@ -90,10 +96,14 @@ func NewBotMetrics() *BotMetrics {
 
 func main() {
 	gotext.Configure("locales", strings.ToLower(config.GetString("lang")), "default")
+
 	err := database.InitDB("/app/data/bot.db")
 	if err != nil {
-		log.Fatalf("failed to create bot: %v", err)
+		log.Fatalf("Failed to initialize database: %v", err)
 	}
+	defer database.CloseDB()
+
+	LoadMetricsFromDB()
 
 	price.StartPriceUpdater()
 	bot, err := telegram.NewBot(telegram.BotConfig{
@@ -103,20 +113,36 @@ func main() {
 	})
 
 	if err != nil {
-		log.Fatalf("failed to create bot: %v", err)
+		log.Fatalf("Failed to create bot: %v", err)
 	}
 
 	alert.StartAlertService(bot)
 
 	updates, err := bot.GetUpdatesChannel()
 	if err != nil {
-		log.Fatalf("failed to get updates channel: %v", err)
+		log.Fatalf("Failed to get updates channel: %v", err)
 	}
 
 	go handleUpdates(bot, updates)
 
+	go func() {
+		for {
+			time.Sleep(5 * time.Minute)
+			SaveMetricsToDB()
+		}
+	}()
+
+	go func() {
+		sig := make(chan os.Signal, 1)
+		signal.Notify(sig, os.Interrupt, syscall.SIGTERM)
+		<-sig
+		SaveMetricsToDB()
+		log.Println("Metrics saved, shutting down...")
+		os.Exit(0)
+	}()
+
 	if err := launchMetricsAndHealthServer(config.GetInt("metrics_port")); err != nil {
-		log.Fatalf("failed to start metrics and health server: %v", err)
+		log.Fatalf("Failed to start metrics and health server: %v", err)
 	}
 }
 
@@ -213,4 +239,106 @@ func launchMetricsAndHealthServer(port int) error {
 
 	log.Infof("Launching metrics and health endpoint on :%d", port)
 	return http.ListenAndServe(fmt.Sprintf(":%d", port), http.DefaultServeMux)
+}
+
+func LoadMetricsFromDB() {
+	metrics.Mutex.Lock()
+	defer metrics.Mutex.Unlock()
+
+	// Load non-labeled metrics
+	commandsProcessed, _ := database.GetMetric("commands_processed")
+	messagesHandled, _ := database.GetMetric("messages_handled")
+	channelsCount, _ := database.GetMetric("channels_count")
+
+	metrics.CommandsProcessed.Add(commandsProcessed)
+	metrics.MessagesHandled.Add(messagesHandled)
+	metrics.ChannelsCount.Set(channelsCount)
+
+	// Load labeled metrics
+	loadLabeledMetrics("channel_names", func(chatIDStr, chatName string, _ float64) {
+		chatID, err := strconv.ParseInt(chatIDStr, 10, 64)
+		if err != nil {
+			log.Printf("Failed to parse chatID %s: %v", chatIDStr, err)
+			return
+		}
+		metrics.ChannelNames.WithLabelValues(chatIDStr, chatName).Add(1)
+		metrics.ChannelsSet[chatID] = chatName
+	})
+
+	loadLabeledMetrics("messages_per_channel", func(chatID, chatName string, value float64) {
+		metrics.MessagesPerChannel.WithLabelValues(chatID, chatName).Add(value)
+	})
+
+	log.Println("Metrics loaded from database.")
+}
+
+func loadLabeledMetrics(metricName string, callback func(labelKey, labelValue string, value float64)) {
+	metricsWithLabels, _ := database.GetMetricsWithLabels(metricName)
+	for labelKey, labelValues := range metricsWithLabels {
+		for labelValue, value := range labelValues {
+			callback(labelKey, labelValue, value)
+		}
+	}
+}
+
+func SaveMetricsToDB() {
+	metrics.Mutex.Lock()
+	defer metrics.Mutex.Unlock()
+
+	// Save non-labeled metrics
+	database.SaveMetric("commands_processed", "", "", GetMetricValue(metrics.CommandsProcessed))
+	database.SaveMetric("messages_handled", "", "", GetMetricValue(metrics.MessagesHandled))
+	database.SaveMetric("channels_count", "", "", float64(len(metrics.ChannelsSet)))
+
+	// Save labeled metrics: channel_names
+	for chatID, chatName := range metrics.ChannelsSet {
+		database.SaveMetricWithLabels("channel_names", fmt.Sprintf("%d", chatID), chatName, float64(chatID))
+	}
+
+	// Save labeled metrics: messages_per_channel
+	metricChan := make(chan prometheus.Metric, 1)
+	go func() {
+		metrics.MessagesPerChannel.Collect(metricChan)
+		close(metricChan)
+	}()
+
+	for metric := range metricChan {
+		metricProto := &dto.Metric{}
+		if err := metric.Write(metricProto); err != nil {
+			log.Printf("Failed to read MessagesPerChannel metric: %v", err)
+			continue
+		}
+		var chatID, chatName string
+		for _, label := range metricProto.Label {
+			if label.GetName() == "chat_id" {
+				chatID = label.GetValue()
+			}
+			if label.GetName() == "chat_name" {
+				chatName = label.GetValue()
+			}
+		}
+		database.SaveMetricWithLabels("messages_per_channel", chatID, chatName, metricProto.Counter.GetValue())
+	}
+
+	log.Println("Metrics saved to database.")
+}
+
+func GetMetricValue(metric prometheus.Collector) float64 {
+	var metricValue float64
+	metricChan := make(chan prometheus.Metric, 1)
+	metric.Collect(metricChan)
+	close(metricChan)
+
+	metricProto := &dto.Metric{}
+	if err := (<-metricChan).Write(metricProto); err != nil {
+		log.Printf("Failed to read metric value: %v", err)
+		return 0
+	}
+
+	if metricProto.Counter != nil {
+		metricValue = metricProto.Counter.GetValue()
+	} else if metricProto.Gauge != nil {
+		metricValue = metricProto.Gauge.GetValue()
+	}
+	return metricValue
 }

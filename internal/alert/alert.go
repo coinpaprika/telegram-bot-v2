@@ -50,7 +50,7 @@ func CheckAlerts(bot *telegram.Bot) {
 			log.Printf("🔍 Checking price alert ID: %d | Ticker: %s | Target: %.2f | Current: %.2f\n",
 				alert.ID, alert.Ticker, alert.Target, priceInfo.PriceUSD)
 
-			if priceInfo.PriceUSD >= alert.Target {
+			if (alert.Target > alert.CurrentPrice && priceInfo.PriceUSD >= alert.Target) || (alert.Target < alert.CurrentPrice && priceInfo.PriceUSD <= alert.Target) {
 				message := fmt.Sprintf(
 					"🚨 *Price Alert Triggered*\n\n*%s \\(%s\\)* has reached the target price of *$%s*\nCurrent Price: *$%s*",
 					helpers.EscapeMarkdownV2(priceInfo.Name),

@@ -62,6 +62,16 @@ func GetHistoricalTickers(currency *coinpaprika.Coin, t time.Time, i string) (*c
 	return currency, tickers, nil
 }
 
+// Get Coin by its ID
+func GetCoinByID(ID string) (*coinpaprika.Coin, error) {
+	result, err := paprikaClient.Coins.GetByID(ID)
+	if err != nil || result == nil {
+		return nil, errors.Errorf("invalid coin id: %s", ID)
+	}
+
+	return result, nil
+}
+
 // SearchCoin searches for a coin based on the provided query.
 func SearchCoin(query string) (*coinpaprika.Coin, error) {
 	searchOpts := &coinpaprika.SearchOptions{
@@ -70,6 +80,7 @@ func SearchCoin(query string) (*coinpaprika.Coin, error) {
 		Modifier:   "symbol_search",
 	}
 	result, err := paprikaClient.Search.Search(searchOpts)
+
 	if err != nil || len(result.Currencies) == 0 {
 		log.Debugf("No results for symbol search, trying name search for '%s'", query)
 		searchOpts = &coinpaprika.SearchOptions{Query: query, Categories: "currencies"}
