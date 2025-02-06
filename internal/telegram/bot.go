@@ -209,6 +209,12 @@ func (b *Bot) HandleCallbackQuery(callbackQuery *tgbotapi.CallbackQuery) {
 		successMsg, err := b.InsertAlert(chatID, coin, target)
 		if err != nil {
 			b.Bot.Send(tgbotapi.NewCallback(callbackQuery.ID, translation.Translate("Failed to save alert. Please try again later.")))
+			msg := tgbotapi.NewMessage(chatID, err.Error())
+			msg.ParseMode = "MarkdownV2"
+			b.Bot.Send(msg)
+			// Delete the options message
+			deleteMsg := tgbotapi.NewDeleteMessage(chatID, messageID)
+			_, err = b.Bot.Request(deleteMsg)
 			return
 		}
 
@@ -305,10 +311,10 @@ func (b *Bot) HandleReply(message *tgbotapi.Message) {
 
 		successMsg, err := b.InsertAlert(chatID, coin, target)
 		if err != nil {
-			b.SendMessage(Message{
-				ChatID: int(chatID),
-				Text:   translation.Translate("alert_save_failed_with_link"),
-			})
+			msg := tgbotapi.NewMessage(chatID, err.Error())
+			msg.ParseMode = "MarkdownV2"
+			b.Bot.Send(msg)
+
 			return
 		}
 
@@ -393,27 +399,38 @@ func (b *Bot) HandleAlertCommand(u tgbotapi.Update) string {
 func (b *Bot) InsertAlert(chatID int64, coin *coinpaprika.Coin, target string) (string, error) {
 	var alertType string
 	var formattedTarget string
+
+	cp, exists := price.GetPrice(*coin.ID)
+	if !exists {
+		return "", errors.New(translation.Translate("current_price_not_found"))
+	}
+
 	if strings.Contains(target, "%") || strings.HasPrefix(target, "-") {
 		alertType = "percent"
 		target = strings.ReplaceAll(target, "%", "")
 
 		targetValue, err := strconv.ParseFloat(target, 64)
 		if err != nil {
-			return "", errors.New(translation.Translate("invalid_percent_target"))
+			return "", errors.New(fmt.Sprintf(
+				translation.Translate("invalid_percent_target"),
+				helpers.EscapeMarkdownV2(fmt.Sprintf("%s (%s)", *coin.Name, *coin.Symbol)),
+				*coin.ID,
+				helpers.FormatPriceUS(cp.PriceUSD, true),
+			))
 		}
-		formattedTarget = helpers.EscapeMarkdownV2(fmt.Sprintf("%.0f%%", targetValue))
+		formattedTarget = helpers.EscapeMarkdownV2(fmt.Sprintf("%.1f%%", targetValue))
 	} else {
 		targetValue, err := strconv.ParseFloat(target, 64)
 		if err != nil {
-			return "", errors.New(translation.Translate("invalid_price_target"))
+			return "", errors.New(fmt.Sprintf(
+				translation.Translate("invalid_price_target"),
+				helpers.EscapeMarkdownV2(fmt.Sprintf("%s (%s)", *coin.Name, *coin.Symbol)),
+				*coin.ID,
+				helpers.FormatPriceUS(cp.PriceUSD, true),
+			))
 		}
 		alertType = "price"
 		formattedTarget = "$" + helpers.FormatPriceUS(targetValue, true)
-	}
-
-	cp, exists := price.GetPrice(*coin.ID)
-	if !exists {
-		return "", errors.New(translation.Translate("current_price_not_found"))
 	}
 
 	err := database.InsertAlert(chatID, *coin.ID, target, alertType, strconv.FormatFloat(cp.PriceUSD, 'f', -1, 64))
@@ -425,6 +442,7 @@ func (b *Bot) InsertAlert(chatID int64, coin *coinpaprika.Coin, target string) (
 	successMsg := fmt.Sprintf(
 		translation.Translate("alert_set_success"),
 		helpers.EscapeMarkdownV2(fmt.Sprintf("%s (%s)", *coin.Name, *coin.Symbol)),
+		*coin.ID,
 		formattedTarget,
 	)
 	return successMsg, nil

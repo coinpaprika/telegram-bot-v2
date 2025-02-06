@@ -100,10 +100,10 @@ msgid "coin_selection_buttons_failed"
 msgstr "Не удалось отправить кнопки выбора монеты: %v"
 
 msgid "invalid_percent_target"
-msgstr "Неверное значение целевого процента."
+msgstr "Текущая цена для [%s](https://coinpaprika.com/coin/%s): *%s*\\. Пожалуйста, убедитесь, что вы используете правильный формат процента для установки оповещения."
 
 msgid "invalid_price_target"
-msgstr "Неверное значение целевой цены."
+msgstr "Текущая цена для [%s](https://coinpaprika.com/coin/%s): *%s*\\. Пожалуйста, убедитесь, что вы используете правильный формат цены для установки оповещения."
 
 msgid "current_price_not_found"
 msgstr "Не удалось получить текущую цену для монеты."
@@ -115,7 +115,7 @@ msgid "database_insert_failed"
 msgstr "Не удалось вставить оповещение в базу данных."
 
 msgid "alert_set_success"
-msgstr "✅ Оповещение установлено для *%s* на *%s*"
+msgstr "✅ Оповещение установлено для [%s](https://coinpaprika.com/valjuta/%s) на *%s*"
 
 msgid "error_fetching_alerts"
 msgstr "Ошибка при получении оповещений: %v"

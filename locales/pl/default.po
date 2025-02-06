@@ -100,10 +100,10 @@ msgid "coin_selection_buttons_failed"
 msgstr "Nie udało się wysłać przycisków wyboru monety: %v"
 
 msgid "invalid_percent_target"
-msgstr "Nieprawidłowa wartość celu procentowego."
+msgstr "Aktualna cena dla [%s](https://coinpaprika.com/coin/%s) to: *%s*\\. Upewnij się, że używasz poprawnego formatu procentowego do ustawienia alertu."
 
 msgid "invalid_price_target"
-msgstr "Nieprawidłowa wartość celu cenowego."
+msgstr "Aktualna cena dla [%s](https://coinpaprika.com/coin/%s) to: *%s*\\. Upewnij się, że używasz poprawnego formatu ceny do ustawienia alertu."
 
 msgid "current_price_not_found"
 msgstr "Nie udało się uzyskać aktualnej ceny dla monety."
@@ -115,7 +115,7 @@ msgid "database_insert_failed"
 msgstr "Nie udało się wstawić alertu do bazy danych."
 
 msgid "alert_set_success"
-msgstr "✅ Alert ustawiony dla *%s* na *%s*"
+msgstr "✅ Alert ustawiony dla [%s](https://coinpaprika.com/coin/%s) na *%s*"
 
 msgid "error_fetching_alerts"
 msgstr "Błąd podczas pobierania alertów: %v"

@@ -100,10 +100,10 @@ msgid "coin_selection_buttons_failed"
 msgstr "Failed to send coin selection buttons: %v"
 
 msgid "invalid_percent_target"
-msgstr "Invalid percent target value."
+msgstr "the Current price for [%s](https://coinpaprika.com/coin/%s) is: *%s*\\. Please make use you are using correct percentage format to set up an alert"
 
 msgid "invalid_price_target"
-msgstr "Invalid price target value."
+msgstr "the Current price for [%s](https://coinpaprika.com/coin/%s) is: *%s*\\. Please make use you are using correct price format to set up an alert"
 
 msgid "current_price_not_found"
 msgstr "Failed to get the current price for the coin."
@@ -115,7 +115,7 @@ msgid "database_insert_failed"
 msgstr "Failed to insert alert into the database."
 
 msgid "alert_set_success"
-msgstr "✅ Alert set for *%s* at *%s*"
+msgstr "✅ Alert set for [%s](https://coinpaprika.com/coin/%s) at *%s*"
 
 msgid "error_fetching_alerts"
 msgstr "Error fetching alerts: %v"

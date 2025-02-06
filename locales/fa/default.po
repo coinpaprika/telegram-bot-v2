@@ -100,10 +100,10 @@ msgid "coin_selection_buttons_failed"
 msgstr "ارسال دکمه‌های انتخاب کوین ناموفق بود: %v"
 
 msgid "invalid_percent_target"
-msgstr "مقدار درصد هدف نامعتبر است."
+msgstr "قیمت فعلی برای [%s](https://coinpaprika.com/coin/%s) برابر است با: *%s*\\. لطفاً اطمینان حاصل کنید که از فرمت صحیح درصد برای تنظیم هشدار استفاده می‌کنید."
 
 msgid "invalid_price_target"
-msgstr "مقدار قیمت هدف نامعتبر است."
+msgstr "قیمت فعلی برای [%s](https://coinpaprika.com/coin/%s) برابر است با: *%s*\\. لطفاً اطمینان حاصل کنید که از فرمت صحیح قیمت برای تنظیم هشدار استفاده می‌کنید."
 
 msgid "current_price_not_found"
 msgstr "دریافت قیمت فعلی کوین ناموفق بود."
@@ -115,7 +115,7 @@ msgid "database_insert_failed"
 msgstr "درج هشدار در پایگاه داده ناموفق بود."
 
 msgid "alert_set_success"
-msgstr "✅ هشدار برای *%s* با مقدار *%s* تنظیم شد."
+msgstr "✅ هشدار برای [%s](https://coinpaprika.com/coin/%s) با مقدار *%s* تنظیم شد."
 
 msgid "error_fetching_alerts"
 msgstr "خطا در دریافت هشدارها: %v"

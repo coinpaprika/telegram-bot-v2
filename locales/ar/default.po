@@ -100,10 +100,11 @@ msgid "coin_selection_buttons_failed"
 msgstr "فشل إرسال أزرار اختيار العملة: %v"
 
 msgid "invalid_percent_target"
-msgstr "قيمة الهدف بالنسبة المئوية غير صالحة."
+msgstr "السعر الحالي لـ [%s](https://coinpaprika.com/coin/%s) هو: *%s*\\. يرجى التأكد من استخدامك للتنسيق الصحيح للنسبة المئوية لإعداد التنبيه."
 
 msgid "invalid_price_target"
-msgstr "قيمة الهدف السعري غير صالحة."
+msgstr "السعر الحالي لـ [%s](https://coinpaprika.com/coin/%s) هو: *%s*\\. يرجى التأكد من استخدامك للتنسيق الصحيح للسعر لإعداد التنبيه."
+
 
 msgid "current_price_not_found"
 msgstr "فشل في الحصول على السعر الحالي للعملة."
@@ -115,7 +116,7 @@ msgid "database_insert_failed"
 msgstr "فشل في إدخال التنبيه في قاعدة البيانات."
 
 msgid "alert_set_success"
-msgstr "✅ تم تعيين التنبيه لـ *%s* عند *%s*"
+msgstr "✅ تم تعيين التنبيه لـ [%s](https://coinpaprika.com/coin/%s) عند *%s*"
 
 msgid "error_fetching_alerts"
 msgstr "خطأ في جلب التنبيهات: %v"
